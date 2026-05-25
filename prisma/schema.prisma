@@ -1,0 +1,152 @@
+// AI Prompt Workflow Studio — data model (Phase 0)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PromptCategory {
+  RESUME
+  INTERVIEW
+  EMAIL
+  CODING
+  LEARNING
+  MARKETING
+  GENERAL
+}
+
+enum WorkflowStepType {
+  INPUT
+  PROMPT
+  AI_RESPONSE
+  EVALUATION
+  SAVE_RESULT
+}
+
+enum AiModelId {
+  GPT
+  GEMINI
+  CLAUDE
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  prompts     Prompt[]
+  promptRuns  PromptRun[]
+  evaluations Evaluation[]
+  workflows   Workflow[]
+}
+
+model Prompt {
+  id          String         @id @default(cuid())
+  userId      String
+  title       String
+  body        String         @db.Text
+  category    PromptCategory @default(GENERAL)
+  isFavorite  Boolean        @default(false)
+  isTemplate  Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions  PromptVersion[]
+  runs      PromptRun[]
+
+  @@index([userId])
+  @@index([category])
+}
+
+model PromptVersion {
+  id        String   @id @default(cuid())
+  promptId  String
+  version   Int
+  name      String
+  body      String   @db.Text
+  notes     String?  @db.Text
+  createdAt DateTime @default(now())
+
+  prompt Prompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@unique([promptId, version])
+  @@index([promptId])
+}
+
+model PromptRun {
+  id           String         @id @default(cuid())
+  userId       String
+  promptId     String?
+  promptText   String         @db.Text
+  category     PromptCategory @default(GENERAL)
+  modelId      AiModelId      @default(GPT)
+  responseText String         @db.Text
+  tokenInput   Int            @default(0)
+  tokenOutput  Int            @default(0)
+  latencyMs    Int            @default(0)
+  createdAt    DateTime       @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt      Prompt?      @relation(fields: [promptId], references: [id], onDelete: SetNull)
+  evaluations Evaluation[]
+
+  @@index([userId])
+  @@index([promptId])
+  @@index([createdAt])
+}
+
+model Evaluation {
+  id               String   @id @default(cuid())
+  userId           String
+  promptRunId      String
+  clarity          Int
+  structure        Int
+  accuracy         Int
+  usefulness       Int
+  hallucinationRisk Int
+  totalScore       Int
+  summary          String?  @db.Text
+  createdAt        DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promptRun PromptRun @relation(fields: [promptRunId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([promptRunId])
+}
+
+model Workflow {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  steps WorkflowStep[]
+
+  @@index([userId])
+}
+
+model WorkflowStep {
+  id         String           @id @default(cuid())
+  workflowId String
+  order      Int
+  stepType   WorkflowStepType
+  label      String
+  config     Json?
+  createdAt  DateTime         @default(now())
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@unique([workflowId, order])
+  @@index([workflowId])
+}
