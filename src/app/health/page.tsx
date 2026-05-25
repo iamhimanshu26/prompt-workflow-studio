@@ -1,20 +1,19 @@
 import Link from "next/link";
-
-async function getHealth() {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  try {
-    const res = await fetch(`${base}/api/health`, { cache: "no-store" });
-    return { ok: res.ok, data: await res.json() };
-  } catch (e) {
-    return {
-      ok: false,
-      data: { status: "error", message: e instanceof Error ? e.message : "Fetch failed" },
-    };
-  }
-}
+import { getHealthStatus } from "@/lib/health";
 
 export default async function HealthPage() {
-  const { ok, data } = await getHealth();
+  let ok = true;
+  let data: Record<string, unknown>;
+
+  try {
+    data = await getHealthStatus();
+  } catch (e) {
+    ok = false;
+    data = {
+      status: "error",
+      message: e instanceof Error ? e.message : "Health check failed",
+    };
+  }
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
@@ -37,13 +36,16 @@ export default async function HealthPage() {
         {JSON.stringify(data, null, 2)}
       </pre>
 
-      {data && typeof data === "object" && "database" in data && data.database === "error" && (
+      {data.database === "error" && (
         <div className="mt-6 rounded-lg border border-[var(--border)] bg-[var(--card)] p-4 text-sm text-[var(--muted)]">
-          <p className="font-medium text-[var(--foreground)]">Database not running (normal for Phase 0)</p>
-          <p className="mt-2">Install Docker, then in Terminal:</p>
-          <pre className="mt-2 text-xs text-[var(--foreground)]">
-            {`cd ~/Projects/prompt-workflow-studio\ndocker compose up -d\nnpm run db:push\nnpm run db:seed`}
-          </pre>
+          <p className="font-medium text-[var(--foreground)]">Database connection failed</p>
+          <p className="mt-2">
+            On Vercel, set <code className="text-[var(--foreground)]">DATABASE_URL</code> to your
+            Neon connection string, then redeploy.
+          </p>
+          {typeof data.dbMessage === "string" && (
+            <p className="mt-2 text-xs text-red-300">{data.dbMessage}</p>
+          )}
         </div>
       )}
     </main>
