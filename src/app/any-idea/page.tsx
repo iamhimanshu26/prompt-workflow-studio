@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
+import { apiErrorMessage } from "@/lib/apiError";
 import { useLang } from "@/lib/i18n/LangProvider";
 import { useToast } from "@/components/Toast";
 
@@ -21,16 +22,25 @@ export default function AnyIdeaPage() {
   const [ideas, setIdeas] = useState<IdeaItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [refining, setRefining] = useState(false);
+  const [listError, setListError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const loadIdeas = useCallback(async () => {
     try {
       const res = await fetch("/api/ideas", { cache: "no-store" });
       const json = await res.json();
-      if (json.status === "ok") setIdeas(json.data);
-    } catch {
-      /* ignore */
+      if (!res.ok || json.status !== "ok") {
+        setListError(apiErrorMessage(json, t("anyIdeaLoadError")));
+        setIdeas([]);
+        return;
+      }
+      setListError(null);
+      setIdeas(json.data);
+    } catch (e) {
+      setListError(e instanceof Error ? e.message : t("anyIdeaLoadError"));
+      setIdeas([]);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadIdeas();
@@ -42,6 +52,7 @@ export default function AnyIdeaPage() {
       return;
     }
     setLoading(true);
+    setActionError(null);
     try {
       const res = await fetch("/api/ideas", {
         method: "POST",
@@ -50,15 +61,19 @@ export default function AnyIdeaPage() {
       });
       const json = await res.json();
       if (!res.ok || json.status !== "ok") {
-        showToast(t("anyIdeaSaveError"), "error");
+        const msg = apiErrorMessage(json, t("anyIdeaSaveError"));
+        setActionError(msg);
+        showToast(msg, "error");
         return;
       }
       showToast(t("anyIdeaSaveSuccess"), "success");
       setRoughNotes("");
       setRefinedPreview(null);
       await loadIdeas();
-    } catch {
-      showToast(t("anyIdeaSaveError"), "error");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : t("anyIdeaSaveError");
+      setActionError(msg);
+      showToast(msg, "error");
     } finally {
       setLoading(false);
     }
@@ -70,6 +85,7 @@ export default function AnyIdeaPage() {
       return;
     }
     setRefining(true);
+    setActionError(null);
     try {
       const res = await fetch("/api/ideas/refine", {
         method: "POST",
@@ -78,15 +94,19 @@ export default function AnyIdeaPage() {
       });
       const json = await res.json();
       if (!res.ok || json.status !== "ok") {
-        showToast(t("anyIdeaRefineError"), "error");
+        const msg = apiErrorMessage(json, t("anyIdeaRefineError"));
+        setActionError(msg);
+        showToast(msg, "error");
         return;
       }
       setRefinedPreview(json.data.refinedNotes ?? null);
       showToast(t("anyIdeaRefineSuccess"), "success");
       setRoughNotes("");
       await loadIdeas();
-    } catch {
-      showToast(t("anyIdeaRefineError"), "error");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : t("anyIdeaRefineError");
+      setActionError(msg);
+      showToast(msg, "error");
     } finally {
       setRefining(false);
     }
@@ -99,7 +119,17 @@ export default function AnyIdeaPage() {
           {t("anyIdeaTitle")}
         </h1>
         <p className="mt-3 text-[var(--muted)]">{t("anyIdeaSubtitle")}</p>
+        <p className="mt-2 text-xs text-[var(--muted)]">{t("anyIdeaStorageHint")}</p>
       </div>
+
+      {(listError || actionError) && (
+        <div
+          role="alert"
+          className="rounded-xl border border-red-300/60 bg-red-50 px-4 py-3 text-sm text-red-900"
+        >
+          {actionError ?? listError}
+        </div>
+      )}
 
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
         <label className="text-sm font-medium text-[var(--muted)]" htmlFor="idea-input">
@@ -148,9 +178,9 @@ export default function AnyIdeaPage() {
 
       <div>
         <h2 className="text-lg font-bold">{t("anyIdeaSavedTitle")}</h2>
-        {ideas.length === 0 ? (
+        {ideas.length === 0 && !listError ? (
           <p className="mt-3 text-sm text-[var(--muted)]">{t("anyIdeaSavedEmpty")}</p>
-        ) : (
+        ) : ideas.length === 0 ? null : (
           <ul className="mt-4 space-y-3">
             {ideas.map((idea) => (
               <li
@@ -172,9 +202,9 @@ export default function AnyIdeaPage() {
                     {new Date(idea.createdAt).toLocaleString()}
                   </time>
                 </div>
-                <p className="mt-2 line-clamp-2 text-sm font-medium">{idea.roughNotes}</p>
+                <p className="mt-2 text-sm font-medium">{idea.roughNotes}</p>
                 {idea.refinedNotes && (
-                  <pre className="mt-2 line-clamp-4 whitespace-pre-wrap font-sans text-xs text-[var(--muted)]">
+                  <pre className="mt-2 whitespace-pre-wrap font-sans text-xs text-[var(--muted)]">
                     {idea.refinedNotes}
                   </pre>
                 )}

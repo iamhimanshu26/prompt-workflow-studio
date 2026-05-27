@@ -59,6 +59,9 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     anyIdeaRefinedPreview: "Latest refinement",
     anyIdeaSavedTitle: "Saved ideas",
     anyIdeaSavedEmpty: "No ideas yet — capture your first one above.",
+    anyIdeaStorageHint:
+      "Ideas are saved in your PostgreSQL database (Idea table) and listed below after each save.",
+    anyIdeaLoadError: "Could not load saved ideas",
     anyIdeaBadgeRefined: "Refined",
     anyIdeaBadgeRaw: "Rough",
 
@@ -175,6 +178,9 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     anyIdeaRefinedPreview: "直近の整理結果",
     anyIdeaSavedTitle: "保存したアイデア",
     anyIdeaSavedEmpty: "まだありません — 上で最初のアイデアを書き留めましょう。",
+    anyIdeaStorageHint:
+      "アイデアはPostgreSQL（Ideaテーブル）に保存され、保存後に下の一覧に表示されます。",
+    anyIdeaLoadError: "保存済みアイデアの読み込みに失敗しました",
     anyIdeaBadgeRefined: "整理済み",
     anyIdeaBadgeRaw: "ラフ",
 
