@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "./providers";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import {
+  getOgImageUrl,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/site";
+
+const ogImageUrl = getOgImageUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -20,10 +27,12 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: [
       {
-        url: "/og-image.jpg",
+        url: ogImageUrl,
+        secureUrl: ogImageUrl,
         width: 1200,
-        height: 630,
+        height: 800,
         alt: SITE_NAME,
+        type: "image/jpeg",
       },
     ],
   },
@@ -31,7 +40,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    images: ["/og-image.jpg"],
+    images: [ogImageUrl],
   },
 };
 

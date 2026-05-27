@@ -42,7 +42,7 @@ DATABASE_URL="your-neon-connection-string" npx prisma db seed
 | `DATABASE_URL` | Neon connection string |
 | `AI_PROVIDER` | `mock` until API keys are set |
 | `AUTH_MODE` | `mock` until NextAuth is configured |
-| `NEXT_PUBLIC_APP_URL` | `https://your-app.vercel.app` |
+| `NEXT_PUBLIC_APP_URL` | Your real Vercel URL, e.g. `https://prompt-workflow-studio.vercel.app` (do **not** use the docs placeholder `your-app.vercel.app` — breaks WhatsApp/link preview images) |
 
 5. Deploy. Vercel runs `npm run build`, which runs `prisma db push` (syncs schema to Neon) then `next build`. Prisma client is generated via `postinstall`.
 
@@ -68,3 +68,4 @@ Add to Vercel environment variables when adapters are implemented:
 | `database: error` on production | Use Neon URL, run `prisma db push` against Neon |
 | Empty app | Check build logs; verify `NEXT_PUBLIC_APP_URL` matches Vercel URL |
 | Any Idea! buttons do nothing | Run `npm run db:push` against Neon, or redeploy so build runs `prisma db push` |
+| Link preview has title but no image | Fix `NEXT_PUBLIC_APP_URL` to your real `.vercel.app` URL and redeploy; refresh WhatsApp cache |
