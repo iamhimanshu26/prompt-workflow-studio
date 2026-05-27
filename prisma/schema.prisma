@@ -44,6 +44,22 @@ model User {
   promptRuns  PromptRun[]
   evaluations Evaluation[]
   workflows   Workflow[]
+  ideas       Idea[]
+}
+
+model Idea {
+  id           String   @id @default(cuid())
+  userId       String
+  roughNotes   String   @db.Text
+  refinedNotes String?  @db.Text
+  isRefined    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Prompt {

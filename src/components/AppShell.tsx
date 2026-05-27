@@ -8,13 +8,14 @@ import { DEMO_USER } from "@/lib/auth/mock";
 import { useLang } from "@/lib/i18n/LangProvider";
 import LangToggle from "@/components/LangToggle";
 
-const NAV_ITEMS: { href: string; labelKey: string }[] = [
+const NAV_ITEMS: { href: string; labelKey: string; highlight?: boolean }[] = [
   { href: "/journey", labelKey: "navJourney" },
   { href: "/dashboard", labelKey: "navDashboard" },
   { href: "/playground", labelKey: "navPlayground" },
   { href: "/optimizer", labelKey: "navOptimizer" },
   { href: "/library", labelKey: "navLibrary" },
   { href: "/workflows", labelKey: "navWorkflows" },
+  { href: "/any-idea", labelKey: "navAnyIdea", highlight: true },
   { href: "/health", labelKey: "navHealth" },
 ];
 
@@ -45,15 +46,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               const active =
                 pathname === item.href ||
                 (item.href !== "/health" && pathname.startsWith(`${item.href}/`));
+              const isIdea = item.highlight === true;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={[
                     "shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold leading-none transition-colors sm:px-2.5 sm:text-[11px]",
-                    active
-                      ? "bg-[var(--accent)] text-white"
-                      : "text-[var(--muted)] hover:bg-black/5 hover:text-[var(--foreground)]",
+                    active && isIdea
+                      ? "bg-[var(--idea-accent)] text-white"
+                      : active
+                        ? "bg-[var(--accent)] text-white"
+                        : isIdea
+                          ? "text-[var(--idea-accent)] hover:bg-[var(--idea-accent)]/10"
+                          : "text-[var(--muted)] hover:bg-black/5 hover:text-[var(--foreground)]",
                   ].join(" ")}
                 >
                   {t(item.labelKey)}
