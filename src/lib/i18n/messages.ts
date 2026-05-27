@@ -34,7 +34,7 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     phase9Label: "GitHub + Vercel deploy",
 
     navHealth: "API Health",
-    navJourney: "Build Journey",
+    navJourney: "How we built this",
     navDashboard: "Dashboard",
     navPlayground: "Playground",
     navOptimizer: "Optimizer",
@@ -66,6 +66,11 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
 
     journeyHubSubtitle:
       "Walk through how each phase was built — timelines, diagrams, and live demos for presentations.",
+
+    dashboardJourneyTitle: "How we built this app",
+    dashboardJourneyBody:
+      "Phase-by-phase story with architecture diagrams, presenter tour, and links to try each feature live.",
+    dashboardJourneyCta: "Open Build Journey →",
 
     playgroundTitle: "Prompt Playground",
     playgroundSubtitle: "Write a prompt, run AI, save results, and track history.",
@@ -124,7 +129,7 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     phase9Label: "GitHub + Vercelデプロイ",
 
     navHealth: "APIヘルス",
-    navJourney: "構築ジャーニー",
+    navJourney: "構築の記録",
     navDashboard: "ダッシュボード",
     navPlayground: "プレイグラウンド",
     navOptimizer: "最適化",
@@ -156,6 +161,11 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
 
     journeyHubSubtitle:
       "各フェーズの構築過程を確認できます。タイムライン、図解、ライブデモでプレゼンに使えます。",
+
+    dashboardJourneyTitle: "このアプリの構築記録",
+    dashboardJourneyBody:
+      "フェーズごとの説明、アーキテクチャ図、プレゼン用ツアー、各機能のライブ体験リンクがあります。",
+    dashboardJourneyCta: "構築ジャーニーを開く →",
 
     playgroundTitle: "プロンプト・プレイグラウンド",
     playgroundSubtitle: "プロンプトを書いてAIを実行し、結果を保存・履歴管理します。",

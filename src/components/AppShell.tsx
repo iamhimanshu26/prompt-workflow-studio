@@ -34,8 +34,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
 
-          <div className="flex items-center gap-4">
-            <nav className="hidden items-center gap-2 md:flex">
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-3 pl-4">
+            <Link
+              href="/journey"
+              className={[
+                "shrink-0 rounded-full px-3 py-2 text-sm font-semibold md:hidden",
+                pathname === "/journey" || pathname.startsWith("/journey/")
+                  ? "bg-[var(--accent)] text-white"
+                  : "bg-[var(--accent)]/15 text-[var(--accent)]",
+              ].join(" ")}
+            >
+              {t("navJourney")}
+            </Link>
+            <nav className="flex max-w-[min(100%,42rem)] items-center gap-1 overflow-x-auto md:gap-2">
               {NAV_ITEMS.map((item) => {
                 const active = pathname === item.href;
                 return (
@@ -73,7 +84,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <div>
             © {new Date().getFullYear()} Prompt Workflow Studio
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <Link href="/journey" className="font-medium text-[var(--accent)] hover:underline">
+              {t("navJourney")}
+            </Link>
             <a href="/health" className="hover:underline">
               {t("navHealth")}
             </a>
