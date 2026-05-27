@@ -107,6 +107,8 @@ Development is split into incremental releases: foundation → dashboard → pla
 
 Details: [docs/ROADMAP.md](docs/ROADMAP.md)
 
+**Phase guides:** [docs/README.md](docs/README.md) — start with [Phase 0 (foundation)](docs/phase-0-foundation.md)
+
 ## License
 
 MIT — see [LICENSE](LICENSE) (add before public release if desired).
