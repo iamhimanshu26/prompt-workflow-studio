@@ -9,14 +9,14 @@ export default function LangToggle() {
 
   return (
     <div
-      className="flex items-center gap-3 rounded-full border border-[var(--border)] bg-white/70 px-4 py-2 shadow-sm backdrop-blur"
+      className="flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white/80 px-2 py-0.5 shadow-sm"
       aria-label="Language toggle"
     >
       <button
         type="button"
         onClick={() => setLang("en")}
         className={[
-          "text-sm font-semibold transition-colors",
+          "text-[10px] font-semibold transition-colors",
           isEn ? "text-[var(--accent)]" : "text-[var(--muted)] hover:text-[var(--foreground)]",
         ].join(" ")}
         aria-pressed={isEn}
@@ -27,13 +27,13 @@ export default function LangToggle() {
       <button
         type="button"
         onClick={() => setLang(isEn ? "ja" : "en")}
-        className="relative h-7 w-12 rounded-full bg-[var(--border)]/70 p-1 transition-colors"
+        className="relative h-4 w-7 rounded-full bg-[var(--border)]/80 p-0.5"
         aria-label="Switch language"
       >
         <span
           className={[
-            "block h-5 w-5 rounded-full bg-[var(--accent)] shadow transition-transform",
-            isEn ? "translate-x-0" : "translate-x-5",
+            "block h-3 w-3 rounded-full bg-[var(--accent)] shadow transition-transform",
+            isEn ? "translate-x-0" : "translate-x-3",
           ].join(" ")}
         />
       </button>
@@ -42,7 +42,7 @@ export default function LangToggle() {
         type="button"
         onClick={() => setLang("ja")}
         className={[
-          "text-sm font-semibold transition-colors",
+          "text-[10px] font-semibold transition-colors",
           !isEn ? "text-[var(--foreground)]" : "text-[var(--muted)] hover:text-[var(--foreground)]",
         ].join(" ")}
         aria-pressed={!isEn}
@@ -52,4 +52,3 @@ export default function LangToggle() {
     </div>
   );
 }
-

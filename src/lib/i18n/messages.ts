@@ -34,7 +34,7 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     phase9Label: "GitHub + Vercel deploy",
 
     navHealth: "API Health",
-    navJourney: "How we built this",
+    navJourney: "Our build",
     navDashboard: "Dashboard",
     navPlayground: "Playground",
     navOptimizer: "Optimizer",
@@ -129,7 +129,7 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     phase9Label: "GitHub + Vercelデプロイ",
 
     navHealth: "APIヘルス",
-    navJourney: "構築の記録",
+    navJourney: "構築記録",
     navDashboard: "ダッシュボード",
     navPlayground: "プレイグラウンド",
     navOptimizer: "最適化",

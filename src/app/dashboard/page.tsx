@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useLang } from "@/lib/i18n/LangProvider";
 import type { AiModelId, PromptCategory } from "@prisma/client";
@@ -89,20 +88,6 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold">{t("dashboardTitle")}</h1>
         <p className="mt-2 text-sm text-[var(--muted)]">{t("dashboardHint")}</p>
       </div>
-
-      <Link
-        href="/journey"
-        className="block rounded-2xl border-2 border-[var(--accent)]/30 bg-gradient-to-br from-[var(--accent)]/10 to-white/80 p-5 transition-shadow hover:shadow-md"
-      >
-        <p className="text-xs font-bold uppercase tracking-wide text-[var(--accent)]">
-          {t("navJourney")}
-        </p>
-        <h2 className="mt-1 text-lg font-bold">{t("dashboardJourneyTitle")}</h2>
-        <p className="mt-2 text-sm text-[var(--muted)]">{t("dashboardJourneyBody")}</p>
-        <span className="mt-3 inline-block text-sm font-semibold text-[var(--accent)]">
-          {t("dashboardJourneyCta")}
-        </span>
-      </Link>
 
       <div className="grid gap-4 md:grid-cols-4">
         <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">

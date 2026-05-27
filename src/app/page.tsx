@@ -56,12 +56,6 @@ export default function HomePage() {
 
       <div className="mt-8 flex flex-wrap gap-4">
         <Link
-          href="/journey"
-          className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-        >
-          {t("navJourney")} →
-        </Link>
-        <Link
           href="/dashboard"
           className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium hover:bg-white/60"
         >
