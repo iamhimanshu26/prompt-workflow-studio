@@ -32,6 +32,36 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     phase7Label: "Prompt library",
     phase8Label: "Workflow builder",
     phase9Label: "GitHub + Vercel deploy",
+
+    navHealth: "API Health",
+    navDashboard: "Dashboard",
+    navPlayground: "Playground",
+    navOptimizer: "Optimizer",
+    navLibrary: "Library",
+    navWorkflows: "Workflows",
+
+    dashboardBrand: "Dashboard",
+    dashboardHint: "Welcome back — demo account",
+
+    dashboardTitle: "Dashboard",
+    dashboardLoading: "Loading…",
+    dashboardError: "Failed to load dashboard",
+
+    promptsCountLabel: "Saved prompts",
+    runsCountLabel: "Prompt runs",
+    avgScoreLabel: "Average score",
+    categoriesTitle: "Categories",
+
+    recentRunsTitle: "Recent runs",
+    recentRunsEmpty: "No runs yet",
+
+    tableCreatedAt: "Created",
+    tableCategory: "Category",
+    tableModel: "Model",
+    tablePrompt: "Prompt",
+    tableScore: "Score (/100)",
+
+    comingSoon: "Coming soon. This page will be fully implemented in the next phases.",
   },
   ja: {
     phase0Heading: "フェーズ0 — 基盤",
@@ -64,6 +94,36 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     phase7Label: "プロンプトライブラリ",
     phase8Label: "ワークフロー作成",
     phase9Label: "GitHub + Vercelデプロイ",
+
+    navHealth: "APIヘルス",
+    navDashboard: "ダッシュボード",
+    navPlayground: "プレイグラウンド",
+    navOptimizer: "最適化",
+    navLibrary: "ライブラリ",
+    navWorkflows: "ワークフロー",
+
+    dashboardBrand: "ダッシュボード",
+    dashboardHint: "おかえり — デモアカウント",
+
+    dashboardTitle: "ダッシュボード",
+    dashboardLoading: "読み込み中…",
+    dashboardError: "ダッシュボードの取得に失敗しました",
+
+    promptsCountLabel: "保存済みプロンプト",
+    runsCountLabel: "実行ログ",
+    avgScoreLabel: "平均スコア",
+    categoriesTitle: "カテゴリ",
+
+    recentRunsTitle: "最近の実行",
+    recentRunsEmpty: "まだ実行データがありません",
+
+    tableCreatedAt: "日時",
+    tableCategory: "カテゴリ",
+    tableModel: "モデル",
+    tablePrompt: "プロンプト",
+    tableScore: "スコア（/100）",
+
+    comingSoon: "準備中です。次のフェーズで実装します。",
   },
 };
 

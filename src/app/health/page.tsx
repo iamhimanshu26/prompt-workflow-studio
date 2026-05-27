@@ -53,18 +53,18 @@ export default function HealthPage() {
 
   if (!data) {
     return (
-      <main className="mx-auto max-w-2xl px-6 py-12">
+      <main className="mx-auto max-w-2xl">
         <Link href="/" className="text-sm text-[var(--accent)] hover:underline">
-          ← {t("backToHome")}
+        ← {t("backToHome")}
         </Link>
-        <h1 className="mt-4 text-2xl font-bold">{t("apiHealthTitle")}</h1>
+      <h1 className="mt-4 text-2xl font-bold">{t("apiHealthTitle")}</h1>
         <p className="mt-2 text-sm text-[var(--muted)]">Loading…</p>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-12">
+    <main className="mx-auto max-w-2xl">
       <Link href="/" className="text-sm text-[var(--accent)] hover:underline">
         ← {t("backToHome")}
       </Link>

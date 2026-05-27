@@ -21,7 +21,7 @@ export default function HomePage() {
   const { t } = useLang();
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
+    <main className="mx-auto max-w-3xl">
       <p className="text-sm font-medium uppercase tracking-wider text-[var(--accent)]">
         {t("phase0Heading")}
       </p>
