@@ -1,4 +1,5 @@
 import { MockAiProvider } from "./mock";
+import { OpenAiProvider } from "./openai";
 import type { AiProvider, AiProviderName } from "./types";
 
 export * from "./types";
@@ -11,15 +12,21 @@ export function getAiProvider(): AiProvider {
   const name = (process.env.AI_PROVIDER ?? "mock") as AiProviderName;
 
   switch (name) {
-    case "mock":
-      cached = new MockAiProvider();
+    case "openai": {
+      const key = process.env.OPENAI_API_KEY;
+      if (key) {
+        cached = new OpenAiProvider(key);
+      } else {
+        console.warn("[ai] OPENAI_API_KEY missing — using mock.");
+        cached = new MockAiProvider();
+      }
       break;
-    case "openai":
+    }
     case "gemini":
-      // Phase 2+: wire OpenAI/Gemini adapters here; fall back to mock if keys missing
-      console.warn(`[ai] Provider "${name}" not implemented yet — using mock.`);
+      console.warn(`[ai] Provider "gemini" not implemented yet — using mock.`);
       cached = new MockAiProvider();
       break;
+    case "mock":
     default:
       cached = new MockAiProvider();
   }

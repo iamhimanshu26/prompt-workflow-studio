@@ -34,6 +34,7 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     phase9Label: "GitHub + Vercel deploy",
 
     navHealth: "API Health",
+    navJourney: "Build Journey",
     navDashboard: "Dashboard",
     navPlayground: "Playground",
     navOptimizer: "Optimizer",
@@ -62,6 +63,33 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     tableScore: "Score (/100)",
 
     comingSoon: "Coming soon. This page will be fully implemented in the next phases.",
+
+    journeyHubSubtitle:
+      "Walk through how each phase was built — timelines, diagrams, and live demos for presentations.",
+
+    playgroundTitle: "Prompt Playground",
+    playgroundSubtitle: "Write a prompt, run AI, save results, and track history.",
+    playgroundCategory: "Category",
+    playgroundPromptLabel: "Your prompt",
+    playgroundPromptPlaceholder: "Enter your prompt here…",
+    playgroundRun: "Run",
+    playgroundRunning: "Running…",
+    playgroundSave: "Save prompt",
+    playgroundSaving: "Saving…",
+    playgroundResponse: "AI response",
+    playgroundNoResponse: "Run a prompt to see the response here.",
+    playgroundCopy: "Copy",
+    playgroundCopySuccess: "Copied to clipboard",
+    playgroundCopyError: "Could not copy",
+    playgroundRunSuccess: "Prompt ran successfully",
+    playgroundRunError: "Failed to run prompt",
+    playgroundSaveSuccess: "Prompt saved",
+    playgroundSaveError: "Failed to save prompt",
+    playgroundEmptyPrompt: "Please enter a prompt first",
+    playgroundRecentRuns: "Recent runs",
+    playgroundProvider: "Provider",
+    playgroundTokens: "Tokens",
+    playgroundLatency: "Latency",
   },
   ja: {
     phase0Heading: "フェーズ0 — 基盤",
@@ -96,6 +124,7 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     phase9Label: "GitHub + Vercelデプロイ",
 
     navHealth: "APIヘルス",
+    navJourney: "構築ジャーニー",
     navDashboard: "ダッシュボード",
     navPlayground: "プレイグラウンド",
     navOptimizer: "最適化",
@@ -124,6 +153,33 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     tableScore: "スコア（/100）",
 
     comingSoon: "準備中です。次のフェーズで実装します。",
+
+    journeyHubSubtitle:
+      "各フェーズの構築過程を確認できます。タイムライン、図解、ライブデモでプレゼンに使えます。",
+
+    playgroundTitle: "プロンプト・プレイグラウンド",
+    playgroundSubtitle: "プロンプトを書いてAIを実行し、結果を保存・履歴管理します。",
+    playgroundCategory: "カテゴリ",
+    playgroundPromptLabel: "プロンプト",
+    playgroundPromptPlaceholder: "ここにプロンプトを入力…",
+    playgroundRun: "実行",
+    playgroundRunning: "実行中…",
+    playgroundSave: "プロンプトを保存",
+    playgroundSaving: "保存中…",
+    playgroundResponse: "AIの応答",
+    playgroundNoResponse: "実行するとここに応答が表示されます。",
+    playgroundCopy: "コピー",
+    playgroundCopySuccess: "クリップボードにコピーしました",
+    playgroundCopyError: "コピーに失敗しました",
+    playgroundRunSuccess: "実行が完了しました",
+    playgroundRunError: "実行に失敗しました",
+    playgroundSaveSuccess: "保存しました",
+    playgroundSaveError: "保存に失敗しました",
+    playgroundEmptyPrompt: "先にプロンプトを入力してください",
+    playgroundRecentRuns: "最近の実行",
+    playgroundProvider: "プロバイダ",
+    playgroundTokens: "トークン",
+    playgroundLatency: "レイテンシ",
   },
 };
 

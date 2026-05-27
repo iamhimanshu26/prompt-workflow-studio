@@ -8,6 +8,7 @@ import { useLang } from "@/lib/i18n/LangProvider";
 import LangToggle from "@/components/LangToggle";
 
 const NAV_ITEMS: { href: string; labelKey: string }[] = [
+  { href: "/journey", labelKey: "navJourney" },
   { href: "/dashboard", labelKey: "navDashboard" },
   { href: "/playground", labelKey: "navPlayground" },
   { href: "/optimizer", labelKey: "navOptimizer" },
@@ -23,7 +24,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-white/55 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
+          <Link href="/dashboard" className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl border border-[var(--border)] bg-white/70 shadow-sm" />
             <div className="leading-tight">
               <div className="text-sm font-extrabold tracking-tight text-[var(--foreground)]">
@@ -31,7 +32,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </div>
               <div className="text-xs text-[var(--muted)]">{t("dashboardHint")}</div>
             </div>
-          </div>
+          </Link>
 
           <div className="flex items-center gap-4">
             <nav className="hidden items-center gap-2 md:flex">

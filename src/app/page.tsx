@@ -5,9 +5,9 @@ import React from "react";
 import { useLang } from "@/lib/i18n/LangProvider";
 
 const PHASES = [
-  { n: 0, status: "current" as const },
-  { n: 1, status: "next" as const },
-  { n: 2, status: "planned" as const },
+  { n: 0, status: "planned" as const },
+  { n: 1, status: "planned" as const },
+  { n: 2, status: "current" as const },
   { n: 3, status: "planned" as const },
   { n: 4, status: "planned" as const },
   { n: 5, status: "planned" as const },
@@ -56,8 +56,20 @@ export default function HomePage() {
 
       <div className="mt-8 flex flex-wrap gap-4">
         <Link
-          href="/health"
+          href="/journey"
           className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+        >
+          {t("navJourney")} →
+        </Link>
+        <Link
+          href="/dashboard"
+          className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium hover:bg-white/60"
+        >
+          {t("navDashboard")} →
+        </Link>
+        <Link
+          href="/health"
+          className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--muted)]"
         >
           {t("checkApiHealth")}
         </Link>
