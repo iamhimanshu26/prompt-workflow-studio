@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { PromptCategory } from "@prisma/client";
+import AiModeBanner from "@/components/AiModeBanner";
 import { useLang } from "@/lib/i18n/LangProvider";
 import { useToast } from "@/components/Toast";
 import { PROMPT_CATEGORIES } from "@/types";
@@ -23,6 +24,24 @@ type SavedPrompt = {
   versionCount: number;
 };
 
+type PromptVersionRow = {
+  id: string;
+  version: number;
+  name: string;
+  body: string;
+  notes: string | null;
+  createdAt: string;
+};
+
+type LibraryPrompt = {
+  id: string;
+  title: string;
+  category: PromptCategory;
+  body: string;
+  updatedAt: string;
+  versions: PromptVersionRow[];
+};
+
 export default function OptimizerPage() {
   const { t } = useLang();
   const { showToast } = useToast();
@@ -34,6 +53,19 @@ export default function OptimizerPage() {
   const [result, setResult] = useState<OptimizeResult | null>(null);
   const [promptId, setPromptId] = useState<string>("");
   const [savedPrompts, setSavedPrompts] = useState<SavedPrompt[]>([]);
+  const [library, setLibrary] = useState<LibraryPrompt[]>([]);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const libraryRef = useRef<HTMLDivElement>(null);
+
+  const loadLibrary = useCallback(async () => {
+    try {
+      const res = await fetch("/api/prompts/library", { cache: "no-store" });
+      const json = await res.json();
+      if (json.status === "ok") setLibrary(json.data);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const loadPrompts = useCallback(async () => {
     try {
@@ -47,7 +79,8 @@ export default function OptimizerPage() {
 
   useEffect(() => {
     loadPrompts();
-  }, [loadPrompts]);
+    loadLibrary();
+  }, [loadPrompts, loadLibrary]);
 
   function loadIntoEditor(p: SavedPrompt) {
     setPromptId(p.id);
@@ -115,8 +148,12 @@ export default function OptimizerPage() {
           : t("optimizerSaveNewSuccess"),
         "success",
       );
-      setPromptId(json.data.promptId);
+      const id = json.data.promptId as string;
+      setPromptId(id);
+      setHighlightId(id);
       await loadPrompts();
+      await loadLibrary();
+      libraryRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch {
       showToast(t("optimizerSaveError"), "error");
     } finally {
@@ -140,6 +177,8 @@ export default function OptimizerPage() {
         <h1 className="text-2xl font-bold">{t("optimizerTitle")}</h1>
         <p className="mt-2 text-sm text-[var(--muted)]">{t("optimizerSubtitle")}</p>
       </div>
+
+      <AiModeBanner />
 
       <div className="flex flex-wrap items-end gap-4">
         <div>
@@ -253,7 +292,7 @@ export default function OptimizerPage() {
                       : t("optimizerSaveNew")}
                 </button>
                 <Link
-                  href="/playground"
+                  href={`/playground?prompt=${encodeURIComponent(result.optimized)}`}
                   className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--muted)] hover:bg-white/80"
                 >
                   {t("optimizerTryPlayground")} →
@@ -265,6 +304,75 @@ export default function OptimizerPage() {
           )}
         </div>
       </div>
+
+      <section
+        ref={libraryRef}
+        className="rounded-2xl border border-[var(--border)] bg-white/55 p-5"
+      >
+        <h2 className="text-lg font-bold">{t("optimizerSavedInDbTitle")}</h2>
+        <p className="mt-1 text-sm text-[var(--muted)]">{t("optimizerSavedInDbHint")}</p>
+
+        {library.length === 0 ? (
+          <p className="mt-4 text-sm text-[var(--muted)]">{t("optimizerSavedInDbEmpty")}</p>
+        ) : (
+          <ul className="mt-4 space-y-4">
+            {library.map((p) => (
+              <li
+                key={p.id}
+                className={[
+                  "rounded-xl border p-4",
+                  highlightId === p.id
+                    ? "border-[var(--accent)] bg-[var(--accent)]/5 ring-2 ring-[var(--accent)]/30"
+                    : "border-[var(--border)] bg-[var(--card)]",
+                ].join(" ")}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <h3 className="font-bold">{p.title}</h3>
+                    <p className="mt-0.5 font-mono text-[10px] text-[var(--muted)]">
+                      Prompt.id: {p.id}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-semibold uppercase">
+                    {p.category}
+                  </span>
+                </div>
+                <p className="mt-2 line-clamp-2 text-sm text-[var(--muted)]">{p.body}</p>
+                <div className="mt-3">
+                  <p className="text-xs font-bold uppercase text-[var(--muted)]">
+                    {t("optimizerVersionsLabel")} ({p.versions.length})
+                  </p>
+                  <ul className="mt-2 space-y-2">
+                    {p.versions.map((v) => (
+                      <li
+                        key={v.id}
+                        className="rounded-lg border border-[var(--border)] bg-white/70 px-3 py-2 text-xs"
+                      >
+                        <div className="flex justify-between gap-2 font-semibold">
+                          <span>
+                            {v.name} (v{v.version})
+                          </span>
+                          <time className="text-[var(--muted)]">
+                            {new Date(v.createdAt).toLocaleString()}
+                          </time>
+                        </div>
+                        <p className="mt-1 line-clamp-2 text-[var(--muted)]">{v.body}</p>
+                        {v.notes && (
+                          <p className="mt-1 line-clamp-1 italic text-[var(--muted)]">
+                            {v.notes.slice(0, 80)}
+                            {v.notes.length > 80 ? "…" : ""}
+                          </p>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-4 text-xs text-[var(--muted)]">{t("optimizerNeonTablesHint")}</p>
+      </section>
     </div>
   );
 }

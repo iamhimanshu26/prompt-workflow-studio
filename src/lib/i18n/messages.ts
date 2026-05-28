@@ -143,6 +143,19 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     optimizerNewPrompt: "— New prompt —",
     optimizerLoadedPrompt: "Loaded saved prompt",
     optimizerTryPlayground: "Try in Playground",
+    optimizerSavedInDbTitle: "Saved in database (Neon)",
+    optimizerSavedInDbHint:
+      "After you click Save, rows appear in PostgreSQL tables Prompt and PromptVersion.",
+    optimizerSavedInDbEmpty: "Nothing saved yet — optimize and click Save as new prompt.",
+    optimizerVersionsLabel: "Versions",
+    optimizerNeonTablesHint:
+      "In Neon SQL Editor: SELECT * FROM \"Prompt\" ORDER BY \"updatedAt\" DESC; and SELECT * FROM \"PromptVersion\" ORDER BY \"createdAt\" DESC;",
+
+    aiMockBannerTitle: "Demo AI mode",
+    aiMockBannerBody:
+      "Responses are placeholders, not real GPT output. On Vercel set AI_PROVIDER=openai and OPENAI_API_KEY, then redeploy.",
+
+    playgroundLoadedFromOptimizer: "Loaded optimized prompt from Optimizer",
   },
   ja: {
     phase0Heading: "フェーズ0 — 基盤",
@@ -286,6 +299,19 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     optimizerNewPrompt: "— 新規 —",
     optimizerLoadedPrompt: "保存済みプロンプトを読み込みました",
     optimizerTryPlayground: "プレイグラウンドで試す",
+    optimizerSavedInDbTitle: "データベースに保存済み（Neon）",
+    optimizerSavedInDbHint:
+      "「保存」を押すと PostgreSQL の Prompt / PromptVersion テーブルに行が追加されます。",
+    optimizerSavedInDbEmpty: "まだありません — 最適化して「新規プロンプトとして保存」を押してください。",
+    optimizerVersionsLabel: "バージョン",
+    optimizerNeonTablesHint:
+      "Neon SQL: SELECT * FROM \"Prompt\" ORDER BY \"updatedAt\" DESC; および \"PromptVersion\"",
+
+    aiMockBannerTitle: "デモAIモード",
+    aiMockBannerBody:
+      "応答はプレースホルダーです。Vercel で AI_PROVIDER=openai と OPENAI_API_KEY を設定して再デプロイしてください。",
+
+    playgroundLoadedFromOptimizer: "最適化プロンプトを読み込みました",
   },
 };
 

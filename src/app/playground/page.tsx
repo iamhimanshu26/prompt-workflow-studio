@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { PromptCategory, AiModelId } from "@prisma/client";
+import AiModeBanner from "@/components/AiModeBanner";
 import { useLang } from "@/lib/i18n/LangProvider";
 import { useToast } from "@/components/Toast";
 import { PROMPT_CATEGORIES } from "@/types";
@@ -26,9 +28,10 @@ type RecentRun = {
   responsePreview: string;
 };
 
-export default function PlaygroundPage() {
+function PlaygroundPageInner() {
   const { t } = useLang();
   const { showToast } = useToast();
+  const searchParams = useSearchParams();
 
   const [promptText, setPromptText] = useState("");
   const [category, setCategory] = useState<PromptCategory>(PromptCategory.GENERAL);
@@ -51,6 +54,14 @@ export default function PlaygroundPage() {
   useEffect(() => {
     loadRecent();
   }, [loadRecent]);
+
+  useEffect(() => {
+    const fromOptimizer = searchParams.get("prompt");
+    if (fromOptimizer) {
+      setPromptText(decodeURIComponent(fromOptimizer));
+      showToast(t("playgroundLoadedFromOptimizer"), "info");
+    }
+  }, [searchParams, showToast, t]);
 
   async function handleRun() {
     if (!promptText.trim()) {
@@ -127,6 +138,8 @@ export default function PlaygroundPage() {
         <h1 className="text-2xl font-bold">{t("playgroundTitle")}</h1>
         <p className="mt-2 text-sm text-[var(--muted)]">{t("playgroundSubtitle")}</p>
       </div>
+
+      <AiModeBanner />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
@@ -241,5 +254,17 @@ export default function PlaygroundPage() {
         )}
       </section>
     </div>
+  );
+}
+
+export default function PlaygroundPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="text-sm text-[var(--muted)]">Loading playground…</div>
+      }
+    >
+      <PlaygroundPageInner />
+    </Suspense>
   );
 }
