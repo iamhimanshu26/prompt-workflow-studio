@@ -1,4 +1,4 @@
-import { getAiProvider } from "@/lib/ai";
+import { getAiConfigDiagnostics, getAiProvider } from "@/lib/ai";
 import { isMockAuthEnabled } from "@/lib/auth/mock";
 import { prisma } from "@/lib/db";
 
@@ -13,6 +13,7 @@ export async function getHealthStatus() {
     dbMessage = e instanceof Error ? e.message : "Database unreachable";
   }
 
+  const config = getAiConfigDiagnostics();
   const ai = getAiProvider();
   const sample = await ai.complete({
     prompt: "health check",
@@ -30,6 +31,7 @@ export async function getHealthStatus() {
       provider: ai.name,
       sampleLatencyMs: sample.latencyMs,
     },
+    aiConfig: config,
     timestamp: new Date().toISOString(),
   };
 }
