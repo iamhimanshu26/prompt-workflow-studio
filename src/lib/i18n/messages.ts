@@ -155,6 +155,10 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     aiMockBannerBody:
       "Responses are placeholders, not real GPT output. On Vercel set AI_PROVIDER=openai and OPENAI_API_KEY, then redeploy.",
 
+    aiQuotaBannerTitle: "OpenAI connected — billing required",
+    aiQuotaBannerBody:
+      "Your API key works but the account has no quota. Add billing at platform.openai.com, then try again.",
+
     playgroundLoadedFromOptimizer: "Loaded optimized prompt from Optimizer",
   },
   ja: {
@@ -310,6 +314,10 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     aiMockBannerTitle: "デモAIモード",
     aiMockBannerBody:
       "応答はプレースホルダーです。Vercel で AI_PROVIDER=openai と OPENAI_API_KEY を設定して再デプロイしてください。",
+
+    aiQuotaBannerTitle: "OpenAI接続済み — 課金が必要",
+    aiQuotaBannerBody:
+      "APIキーは有効ですがクォータがありません。platform.openai.com で課金設定後、再試行してください。",
 
     playgroundLoadedFromOptimizer: "最適化プロンプトを読み込みました",
   },

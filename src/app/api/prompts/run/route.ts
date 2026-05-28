@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { aiErrorResponse } from "@/lib/ai/apiErrorResponse";
 import { getAiProvider } from "@/lib/ai";
 import { getMockUserId } from "@/lib/auth/mock";
 import { prisma } from "@/lib/db";
@@ -56,12 +57,6 @@ export async function POST(req: Request) {
       },
     });
   } catch (e) {
-    return NextResponse.json(
-      {
-        status: "error",
-        message: e instanceof Error ? e.message : "Failed to run prompt",
-      },
-      { status: 500 },
-    );
+    return aiErrorResponse(e, "Failed to run prompt");
   }
 }

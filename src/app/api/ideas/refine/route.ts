@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getMockUserId } from "@/lib/auth/mock";
 import { prisma } from "@/lib/db";
+import { aiErrorResponse } from "@/lib/ai/apiErrorResponse";
 import { refineIdea } from "@/lib/ideas/refineIdea";
 
 const refineSchema = z.object({
@@ -43,12 +44,6 @@ export async function POST(req: Request) {
       },
     });
   } catch (e) {
-    return NextResponse.json(
-      {
-        status: "error",
-        message: e instanceof Error ? e.message : "Failed to refine idea",
-      },
-      { status: 500 },
-    );
+    return aiErrorResponse(e, "Failed to refine idea");
   }
 }

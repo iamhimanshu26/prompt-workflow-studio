@@ -1,4 +1,5 @@
 import { getAiConfigDiagnostics, getAiProvider } from "@/lib/ai";
+import { parseOpenAiError } from "@/lib/ai/openaiErrors";
 import { isMockAuthEnabled } from "@/lib/auth/mock";
 import { prisma } from "@/lib/db";
 
@@ -15,10 +16,36 @@ export async function getHealthStatus() {
 
   const config = getAiConfigDiagnostics();
   const ai = getAiProvider();
-  const sample = await ai.complete({
-    prompt: "health check",
-    category: "GENERAL",
-  });
+
+  let aiSample: { provider: string; sampleLatencyMs: number | null; status: string } = {
+    provider: ai.name,
+    sampleLatencyMs: null,
+    status: "skipped",
+  };
+  let aiWarning: string | undefined;
+  let aiErrorKind: string | undefined;
+
+  try {
+    const sample = await ai.complete({
+      prompt: "health check",
+      category: "GENERAL",
+    });
+    aiSample = {
+      provider: sample.provider,
+      sampleLatencyMs: sample.latencyMs,
+      status: "ok",
+    };
+  } catch (e) {
+    const raw = e instanceof Error ? e.message : "AI check failed";
+    const parsed = parseOpenAiError(raw);
+    aiWarning = parsed.userMessage;
+    aiErrorKind = parsed.kind;
+    aiSample = {
+      provider: ai.name,
+      sampleLatencyMs: null,
+      status: parsed.kind,
+    };
+  }
 
   return {
     status: "ok" as const,
@@ -27,11 +54,10 @@ export async function getHealthStatus() {
     auth: isMockAuthEnabled() ? "mock" : "configured",
     database,
     dbMessage,
-    ai: {
-      provider: ai.name,
-      sampleLatencyMs: sample.latencyMs,
-    },
+    ai: aiSample,
     aiConfig: config,
+    aiWarning,
+    aiErrorKind,
     timestamp: new Date().toISOString(),
   };
 }

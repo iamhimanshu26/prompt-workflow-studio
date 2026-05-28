@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { aiErrorResponse } from "@/lib/ai/apiErrorResponse";
 import { getAiProvider } from "@/lib/ai";
 import { PromptCategory } from "@prisma/client";
 
@@ -35,12 +36,6 @@ export async function POST(req: Request) {
       },
     });
   } catch (e) {
-    return NextResponse.json(
-      {
-        status: "error",
-        message: e instanceof Error ? e.message : "Failed to optimize prompt",
-      },
-      { status: 500 },
-    );
+    return aiErrorResponse(e, "Failed to optimize prompt");
   }
 }

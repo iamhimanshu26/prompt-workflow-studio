@@ -4,7 +4,9 @@ import React, { useEffect, useState } from "react";
 import { useLang } from "@/lib/i18n/LangProvider";
 
 type HealthPayload = {
-  ai?: { provider: string };
+  ai?: { provider: string; status?: string };
+  aiWarning?: string;
+  aiErrorKind?: string;
   aiConfig?: {
     aiProviderEnv: string | null;
     openaiKeyConfigured: boolean;
@@ -19,6 +21,8 @@ export default function AiModeBanner() {
   const { t } = useLang();
   const [info, setInfo] = useState<HealthPayload["aiConfig"] | null>(null);
   const [provider, setProvider] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
+  const [errorKind, setErrorKind] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -28,6 +32,8 @@ export default function AiModeBanner() {
         if (cancelled) return;
         setProvider(json.ai?.provider ?? null);
         setInfo(json.aiConfig ?? null);
+        setWarning(json.aiWarning ?? null);
+        setErrorKind(json.aiErrorKind ?? null);
       })
       .catch(() => {});
     return () => {
@@ -35,15 +41,32 @@ export default function AiModeBanner() {
     };
   }, []);
 
-  if (!provider || provider !== "mock") return null;
+  if (!provider && !warning) return null;
+  if (provider === "openai" && !warning) return null;
+
+  const isQuota = errorKind === "quota" || warning?.toLowerCase().includes("quota");
 
   return (
     <div
       role="status"
-      className="rounded-xl border border-amber-300/50 bg-amber-50/90 px-4 py-3 text-sm text-amber-950"
+      className={[
+        "rounded-xl border px-4 py-3 text-sm",
+        isQuota
+          ? "border-red-300/60 bg-red-50 text-red-950"
+          : "border-amber-300/50 bg-amber-50/90 text-amber-950",
+      ].join(" ")}
     >
-      <span className="font-semibold">{t("aiMockBannerTitle")}</span>
-      <span className="text-amber-900/90"> — {t("aiMockBannerBody")}</span>
+      {isQuota ? (
+        <>
+          <span className="font-semibold">{t("aiQuotaBannerTitle")}</span>
+          <p className="mt-1 text-red-900/90">{warning ?? t("aiQuotaBannerBody")}</p>
+        </>
+      ) : (
+        <>
+          <span className="font-semibold">{t("aiMockBannerTitle")}</span>
+          <span className="text-amber-900/90"> — {t("aiMockBannerBody")}</span>
+        </>
+      )}
       {info && (
         <ul className="mt-2 list-inside list-disc text-xs text-amber-900/80">
           <li>
