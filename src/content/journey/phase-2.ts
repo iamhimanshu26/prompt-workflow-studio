@@ -2,7 +2,7 @@ import type { JourneyPhaseContent } from "./types";
 
 export const phase2: JourneyPhaseContent = {
   phase: 2,
-  status: "complete",
+  status: "complete" as const,
   title: { en: "Phase 2 — Prompt Playground", ja: "フェーズ2 — プロンプト・プレイグラウンド" },
   subtitle: {
     en: "Write prompts, run AI (mock or OpenAI), save history, and explore the build journey.",

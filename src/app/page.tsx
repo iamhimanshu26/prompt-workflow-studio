@@ -7,8 +7,8 @@ import { useLang } from "@/lib/i18n/LangProvider";
 const PHASES = [
   { n: 0, status: "planned" as const },
   { n: 1, status: "planned" as const },
-  { n: 2, status: "current" as const },
-  { n: 3, status: "planned" as const },
+  { n: 2, status: "planned" as const },
+  { n: 3, status: "current" as const },
   { n: 4, status: "planned" as const },
   { n: 5, status: "planned" as const },
   { n: 6, status: "planned" as const },

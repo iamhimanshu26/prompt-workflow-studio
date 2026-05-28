@@ -2,8 +2,9 @@ import type { JourneyPhaseContent, JourneyPhaseMeta } from "./types";
 import { phase0 } from "./phase-0";
 import { phase1 } from "./phase-1";
 import { phase2 } from "./phase-2";
+import { phase3 } from "./phase-3";
 
-const PLANNED_META: JourneyPhaseMeta[] = [3, 4, 5, 6, 7, 8, 9].map((n) => ({
+const PLANNED_META: JourneyPhaseMeta[] = [4, 5, 6, 7, 8, 9].map((n) => ({
   phase: n,
   status: "planned" as const,
   title: {
@@ -16,7 +17,7 @@ const PLANNED_META: JourneyPhaseMeta[] = [3, 4, 5, 6, 7, 8, 9].map((n) => ({
   },
 }));
 
-const COMPLETE: JourneyPhaseContent[] = [phase0, phase1, phase2];
+const COMPLETE: JourneyPhaseContent[] = [phase0, phase1, phase2, phase3];
 
 export function getPhaseContent(phase: number): JourneyPhaseContent | null {
   return COMPLETE.find((p) => p.phase === phase) ?? null;

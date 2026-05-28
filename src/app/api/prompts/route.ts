@@ -5,6 +5,47 @@ import { prisma } from "@/lib/db";
 import { autoTitleFromPrompt } from "@/lib/prompts/autoTitle";
 import { PromptCategory } from "@prisma/client";
 
+export async function GET() {
+  try {
+    const userId = getMockUserId();
+    const prompts = await prisma.prompt.findMany({
+      where: { userId },
+      orderBy: { updatedAt: "desc" },
+      take: 50,
+      select: {
+        id: true,
+        title: true,
+        category: true,
+        body: true,
+        updatedAt: true,
+        _count: { select: { versions: true } },
+      },
+    });
+
+    return NextResponse.json({
+      status: "ok",
+      data: prompts.map((p) => ({
+        id: p.id,
+        title: p.title,
+        category: p.category,
+        body: p.body,
+        bodyPreview:
+          p.body.length > 120 ? `${p.body.slice(0, 120)}…` : p.body,
+        versionCount: p._count.versions,
+        updatedAt: p.updatedAt,
+      })),
+    });
+  } catch (e) {
+    return NextResponse.json(
+      {
+        status: "error",
+        message: e instanceof Error ? e.message : "Failed to list prompts",
+      },
+      { status: 500 },
+    );
+  }
+}
+
 const bodySchema = z.object({
   body: z.string().min(1, "Prompt body is required"),
   category: z.nativeEnum(PromptCategory).default(PromptCategory.GENERAL),

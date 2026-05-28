@@ -21,7 +21,7 @@ export async function getHealthStatus() {
 
   return {
     status: "ok" as const,
-    phase: 2,
+    phase: 3,
     app: process.env.NEXT_PUBLIC_APP_NAME ?? "Prompt Workflow Studio",
     auth: isMockAuthEnabled() ? "mock" : "configured",
     database,
