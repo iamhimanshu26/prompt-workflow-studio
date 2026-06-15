@@ -92,15 +92,28 @@ export class OpenAiProvider implements AiProvider {
   }
 
   async optimize(request: OptimizeRequest): Promise<OptimizeResult> {
-    const system =
-      "Improve the user's prompt for clarity, constraints, and output format. Return only the improved prompt.";
-    const user = `Category: ${request.category ?? "GENERAL"}\n\nRough prompt:\n${request.roughPrompt}`;
-    const { text } = await this.chat(system, user);
+    const start = Date.now();
+    const category = request.category ?? "GENERAL";
+    const focus = request.instruction?.trim()
+      ? `\nOptimization focus: ${request.instruction}`
+      : "";
+    const system = [
+      "Improve the user's prompt for clarity, constraints, and output format.",
+      `Category: ${CATEGORY_HINT[category]}.`,
+      request.outputStyle
+        ? `Format style: ${request.outputStyle}.`
+        : "Return a production-ready prompt.",
+      focus,
+      "Return only the improved prompt, no preamble.",
+    ].join(" ");
+    const user = `Rough prompt:\n${request.roughPrompt.trim()}`;
+    const { text, latencyMs } = await this.chat(system, user);
     return {
-      original: request.roughPrompt,
+      original: request.roughPrompt.trim(),
       optimized: text,
       improvements: ["Clarity", "Structure", "Constraints"],
       provider: "openai",
+      latencyMs: Date.now() - start + latencyMs,
     };
   }
 

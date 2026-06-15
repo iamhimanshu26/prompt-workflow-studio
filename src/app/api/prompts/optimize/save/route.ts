@@ -27,8 +27,8 @@ export async function POST(req: Request) {
     const { optimized, original, category, promptId, title } = parsed.data;
     const userId = getMockUserId();
     const notes = original?.trim()
-      ? `Optimized from rough prompt:\n\n${original.trim()}`
-      : "Optimized via Prompt Optimizer";
+      ? `Optimized via Prompt Refinement Studio from rough prompt:\n\n${original.trim()}`
+      : "Optimized via Prompt Refinement Studio";
 
     if (promptId) {
       const existing = await prisma.prompt.findFirst({

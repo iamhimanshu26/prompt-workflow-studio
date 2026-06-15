@@ -20,6 +20,10 @@ export interface CompletionResult {
 export interface OptimizeRequest {
   roughPrompt: string;
   category?: PromptCategory;
+  optimizationGoal?: string;
+  targetAudience?: string;
+  outputStyle?: string;
+  instruction?: string;
 }
 
 export interface OptimizeResult {
@@ -27,6 +31,7 @@ export interface OptimizeResult {
   optimized: string;
   improvements: string[];
   provider: AiProviderName;
+  latencyMs?: number;
 }
 
 export interface EvaluationInput {

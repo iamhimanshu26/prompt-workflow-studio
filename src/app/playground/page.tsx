@@ -113,6 +113,12 @@ function PlaygroundPageInner() {
     const fromOptimizer = searchParams.get("prompt");
     if (fromOptimizer) {
       setPromptText(decodeURIComponent(fromOptimizer));
+      const cat = searchParams.get("category");
+      if (cat && Object.values(PromptCategory).includes(cat as PromptCategory)) {
+        setCategory(cat as PromptCategory);
+      }
+      const ttl = searchParams.get("title");
+      if (ttl) setTitle(decodeURIComponent(ttl));
       showToast(t("playgroundLoadedFromOptimizer"), "info");
     }
   }, [searchParams, showToast, t]);

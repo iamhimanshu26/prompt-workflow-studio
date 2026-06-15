@@ -108,28 +108,51 @@ export class MockAiProvider implements AiProvider {
   }
 
   async optimize(request: OptimizeRequest): Promise<OptimizeResult> {
+    const start = Date.now();
     const rough = request.roughPrompt.trim();
+    const category = request.category ?? "GENERAL";
+    const instruction = request.instruction?.trim();
+
+    const styleBlock =
+      request.outputStyle === "systemUser"
+        ? `## System\nYou are an expert assistant focused on ${category}.\n\n## User\n`
+        : request.outputStyle === "roleBased"
+          ? `## Role\nYou are an expert assistant.\n\n## Task\n`
+          : request.outputStyle === "stepByStep"
+            ? `Follow these steps:\n1. Understand the request.\n2. Apply constraints.\n3. Produce the output.\n\n## Task\n`
+            : "";
+
     const optimized = [
-      "You are an expert assistant. Follow these rules:",
+      styleBlock || "You are an expert assistant. Follow these rules:",
       "1. Be specific about audience, tone, and output format.",
       "2. Include constraints and examples when helpful.",
       "3. Ask for clarification only if critical context is missing.",
+      instruction ? `4. Optimization focus: ${instruction}` : "",
       "",
       "Task:",
       rough,
       "",
-      `Context category: ${request.category ?? "GENERAL"}`,
-    ].join("\n");
+      `Context category: ${category}`,
+      request.outputStyle === "jsonReady"
+        ? "\nOutput: Respond with valid JSON matching the requested structure."
+        : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const improvements = [
+      "Clarity improved",
+      "Structure added",
+      "Output format clarified",
+    ];
+    if (instruction) improvements.push("Optimization goal applied");
 
     return {
       original: rough,
       optimized,
-      improvements: [
-        "Added role and behavior framing",
-        "Structured task vs. meta-instructions",
-        "Included category context",
-      ],
+      improvements,
       provider: "mock",
+      latencyMs: Date.now() - start + mockLatency(rough),
     };
   }
 
