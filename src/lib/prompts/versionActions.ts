@@ -1,6 +1,36 @@
 import { prisma } from "@/lib/db";
 import { deriveVersionSource, inferPromptStatus } from "@/lib/versions/source";
-import type { PromptDetail, VersionRow } from "@/lib/versions/types";
+import type { PromptDetail, PromptListItem, VersionRow } from "@/lib/versions/types";
+
+export type PromptListRow = {
+  id: string;
+  title: string;
+  category: string;
+  body: string;
+  createdAt: Date;
+  updatedAt: Date;
+  versions: { version: number; notes: string | null; name: string }[];
+  _count: { versions: number };
+};
+
+export function mapPromptToListItem(p: PromptListRow): PromptListItem {
+  const versionCount = p._count.versions;
+  const latest = p.versions[0];
+  const latestVersion = latest?.version ?? 0;
+
+  return {
+    id: p.id,
+    title: p.title,
+    category: p.category,
+    body: p.body,
+    bodyPreview: p.body.length > 120 ? `${p.body.slice(0, 120)}…` : p.body,
+    versionCount,
+    latestVersion: latestVersion > 0 ? latestVersion : 1,
+    createdAt: p.createdAt.toISOString(),
+    updatedAt: p.updatedAt.toISOString(),
+    status: inferPromptStatus(versionCount, latest?.notes ?? null, latest?.name ?? ""),
+  };
+}
 
 function mapVersion(v: {
   id: string;

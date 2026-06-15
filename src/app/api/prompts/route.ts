@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getMockUserId } from "@/lib/auth/mock";
 import { prisma } from "@/lib/db";
 import { autoTitleFromPrompt } from "@/lib/prompts/autoTitle";
+import { mapPromptToListItem } from "@/lib/prompts/versionActions";
 import { PromptCategory } from "@prisma/client";
 
 export async function GET() {
@@ -30,31 +31,7 @@ export async function GET() {
 
     return NextResponse.json({
       status: "ok",
-      data: prompts.map((p) => {
-        const latest = p.versions[0];
-        const versionCount = p._count.versions;
-        const notes = latest?.notes ?? null;
-        const name = latest?.name ?? "";
-        const status =
-          versionCount <= 1
-            ? "draft"
-            : `${notes ?? ""} ${name}`.toLowerCase().includes("optim")
-              ? "optimized"
-              : "active";
-
-        return {
-          id: p.id,
-          title: p.title,
-          category: p.category,
-          body: p.body,
-          bodyPreview: p.body.length > 120 ? `${p.body.slice(0, 120)}…` : p.body,
-          versionCount,
-          latestVersion: latest?.version ?? 1,
-          createdAt: p.createdAt.toISOString(),
-          updatedAt: p.updatedAt.toISOString(),
-          status,
-        };
-      }),
+      data: prompts.map(mapPromptToListItem),
     });
   } catch (e) {
     return NextResponse.json(

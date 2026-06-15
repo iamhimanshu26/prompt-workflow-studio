@@ -12,6 +12,7 @@ Built as a portfolio project to demonstrate modern React, API design, PostgreSQL
 - PromptOps Command Center dashboard (KPIs, lifecycle pipeline, activity, system health)
 - Prompt Playground — run prompts, save results, track execution history
 - Prompt Optimizer — side-by-side optimization and version save
+- Prompt Version Control — version history, compare, restore, and duplicate (`/versions`)
 - Any Idea — capture and refine product/workflow ideas (PostgreSQL-backed)
 - API Health — database, AI provider, and environment diagnostics
 - PostgreSQL data model (Prisma) for prompts, versions, runs, evaluations, workflows, and ideas
@@ -22,7 +23,6 @@ Built as a portfolio project to demonstrate modern React, API design, PostgreSQL
 
 - Prompt Library — enterprise preview page (full CRUD/search planned)
 - Workflow Builder — readiness preview (drag-and-drop canvas planned)
-- Version history and side-by-side compare (optimizer save exists; full UI planned)
 - Output evaluation center (schema ready; UI planned)
 - Multi-model comparison (planned)
 
