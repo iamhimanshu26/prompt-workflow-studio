@@ -98,9 +98,9 @@ export default function DashboardPage() {
       key: "version",
       title: t("lifecycleVersion"),
       description: t("lifecycleVersionDesc"),
-      href: "/optimizer",
-      status: "planned",
-      statusLabel: t("statusPartial"),
+      href: "/versions",
+      status: data.recentVersions.length > 0 ? "active" : "partial",
+      statusLabel: data.recentVersions.length > 0 ? t("statusActive") : t("statusReady"),
     },
     {
       key: "evaluate",

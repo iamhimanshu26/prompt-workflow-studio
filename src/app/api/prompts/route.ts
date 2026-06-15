@@ -11,29 +11,50 @@ export async function GET() {
     const prompts = await prisma.prompt.findMany({
       where: { userId },
       orderBy: { updatedAt: "desc" },
-      take: 50,
+      take: 100,
       select: {
         id: true,
         title: true,
         category: true,
         body: true,
+        createdAt: true,
         updatedAt: true,
+        versions: {
+          orderBy: { version: "desc" },
+          take: 1,
+          select: { version: true, notes: true, name: true },
+        },
         _count: { select: { versions: true } },
       },
     });
 
     return NextResponse.json({
       status: "ok",
-      data: prompts.map((p) => ({
-        id: p.id,
-        title: p.title,
-        category: p.category,
-        body: p.body,
-        bodyPreview:
-          p.body.length > 120 ? `${p.body.slice(0, 120)}…` : p.body,
-        versionCount: p._count.versions,
-        updatedAt: p.updatedAt,
-      })),
+      data: prompts.map((p) => {
+        const latest = p.versions[0];
+        const versionCount = p._count.versions;
+        const notes = latest?.notes ?? null;
+        const name = latest?.name ?? "";
+        const status =
+          versionCount <= 1
+            ? "draft"
+            : `${notes ?? ""} ${name}`.toLowerCase().includes("optim")
+              ? "optimized"
+              : "active";
+
+        return {
+          id: p.id,
+          title: p.title,
+          category: p.category,
+          body: p.body,
+          bodyPreview: p.body.length > 120 ? `${p.body.slice(0, 120)}…` : p.body,
+          versionCount,
+          latestVersion: latest?.version ?? 1,
+          createdAt: p.createdAt.toISOString(),
+          updatedAt: p.updatedAt.toISOString(),
+          status,
+        };
+      }),
     });
   } catch (e) {
     return NextResponse.json(
