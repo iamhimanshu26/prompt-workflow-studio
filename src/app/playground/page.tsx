@@ -1,31 +1,32 @@
 "use client";
 
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PromptCategory, AiModelId } from "@prisma/client";
 import AiModeBanner from "@/components/AiModeBanner";
+import OutputPanel from "@/components/playground/OutputPanel";
+import PromptComposer from "@/components/playground/PromptComposer";
+import RecentRunsPanel, { type RecentRunRow } from "@/components/playground/RecentRunsPanel";
+import PlaygroundSkeleton from "@/components/playground/PlaygroundSkeleton";
 import { useLang } from "@/lib/i18n/LangProvider";
 import { useToast } from "@/components/Toast";
-import { PROMPT_CATEGORIES } from "@/types";
+import {
+  detectVariables,
+  replaceVariables,
+} from "@/lib/playground/composePrompt";
+import type { ProviderUiState } from "@/lib/playground/providerInfo";
+import type {
+  ExecutionOptions,
+  OutputFormat,
+  RunMetadata,
+  Tone,
+} from "@/lib/playground/types";
 
-type RunResult = {
-  runId: string;
-  responseText: string;
-  modelId: AiModelId;
-  provider: string;
-  tokenInput: number;
-  tokenOutput: number;
-  latencyMs: number;
-};
-
-type RecentRun = {
-  id: string;
-  createdAt: string;
-  category: PromptCategory;
-  modelId: AiModelId;
-  promptTitle: string | null;
-  promptText: string;
-  responsePreview: string;
+type RunApiData = {
+  output?: string;
+  responseText?: string;
+  metadata?: RunMetadata;
+  runId?: string;
 };
 
 function PlaygroundPageInner() {
@@ -33,13 +34,49 @@ function PlaygroundPageInner() {
   const { showToast } = useToast();
   const searchParams = useSearchParams();
 
+  const [title, setTitle] = useState("");
   const [promptText, setPromptText] = useState("");
+  const [systemInstruction, setSystemInstruction] = useState("");
   const [category, setCategory] = useState<PromptCategory>(PromptCategory.GENERAL);
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>("plain");
+  const [tone, setTone] = useState<Tone>("professional");
+  const [modelId, setModelId] = useState<AiModelId>(AiModelId.GPT);
+  const [executionOptions, setExecutionOptions] = useState<ExecutionOptions>({
+    temperature: 0.7,
+    responseLength: "medium",
+    creativity: "balanced",
+  });
+  const [variableValues, setVariableValues] = useState<Record<string, string>>({});
+
   const [running, setRunning] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [result, setResult] = useState<RunResult | null>(null);
+  const [output, setOutput] = useState<string | null>(null);
+  const [metadata, setMetadata] = useState<RunMetadata | null>(null);
+  const [runError, setRunError] = useState<string | null>(null);
   const [lastPromptId, setLastPromptId] = useState<string | null>(null);
-  const [recentRuns, setRecentRuns] = useState<RecentRun[]>([]);
+  const [recentRuns, setRecentRuns] = useState<RecentRunRow[]>([]);
+  const [provider, setProvider] = useState<ProviderUiState | null>(null);
+  const [runsLoading, setRunsLoading] = useState(true);
+
+  const variables = useMemo(() => detectVariables(promptText), [promptText]);
+
+  const resolvedPrompt = useMemo(
+    () => replaceVariables(promptText, variableValues),
+    [promptText, variableValues],
+  );
+
+  useEffect(() => {
+    setVariableValues((prev) => {
+      const next = { ...prev };
+      for (const v of variables) {
+        if (!(v in next)) next[v] = "";
+      }
+      for (const key of Object.keys(next)) {
+        if (!variables.includes(key)) delete next[key];
+      }
+      return next;
+    });
+  }, [variables]);
 
   const loadRecent = useCallback(async () => {
     try {
@@ -48,12 +85,29 @@ function PlaygroundPageInner() {
       if (json.status === "ok") setRecentRuns(json.data);
     } catch {
       /* ignore */
+    } finally {
+      setRunsLoading(false);
+    }
+  }, []);
+
+  const loadProvider = useCallback(async () => {
+    try {
+      const res = await fetch("/api/health", { cache: "no-store" });
+      const json = await res.json();
+      setProvider({
+        activeProvider: json.ai?.provider ?? "mock",
+        usingMock: json.aiConfig?.usingMockFallback ?? true,
+        openaiConfigured: json.aiConfig?.openaiKeyConfigured ?? false,
+      });
+    } catch {
+      setProvider({ activeProvider: "mock", usingMock: true, openaiConfigured: false });
     }
   }, []);
 
   useEffect(() => {
     loadRecent();
-  }, [loadRecent]);
+    loadProvider();
+  }, [loadRecent, loadProvider]);
 
   useEffect(() => {
     const fromOptimizer = searchParams.get("prompt");
@@ -63,41 +117,64 @@ function PlaygroundPageInner() {
     }
   }, [searchParams, showToast, t]);
 
-  async function handleRun() {
-    if (!promptText.trim()) {
+  async function handleRun(overridePrompt?: string) {
+    const base = (overridePrompt ?? resolvedPrompt).trim();
+    if (!base) {
       showToast(t("playgroundEmptyPrompt"), "error");
       return;
     }
+
     setRunning(true);
-    setResult(null);
+    setOutput(null);
+    setMetadata(null);
+    setRunError(null);
+
     try {
       const res = await fetch("/api/prompts/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           promptText,
+          resolvedPrompt: base,
           category,
           promptId: lastPromptId ?? undefined,
-          modelId: AiModelId.GPT,
+          title: title.trim() || undefined,
+          modelId,
+          systemInstruction: systemInstruction.trim() || undefined,
+          outputFormat,
+          tone,
+          executionOptions,
         }),
       });
       const json = await res.json();
       if (!res.ok || json.status !== "ok") {
-        showToast(json.message ?? t("playgroundRunError"), "error");
+        const msg =
+          typeof json.message === "string"
+            ? json.message
+            : t("playgroundRunError");
+        setRunError(msg);
+        showToast(msg, "error");
         return;
       }
-      setResult(json.data);
+
+      const data = json.data as RunApiData;
+      const text = data.output ?? data.responseText ?? "";
+      setOutput(text);
+      if (data.metadata) setMetadata(data.metadata);
       showToast(t("playgroundRunSuccess"), "success");
       loadRecent();
     } catch (e) {
-      showToast(e instanceof Error ? e.message : t("playgroundRunError"), "error");
+      const msg = e instanceof Error ? e.message : t("playgroundRunError");
+      setRunError(msg);
+      showToast(msg, "error");
     } finally {
       setRunning(false);
     }
   }
 
   async function handleSave() {
-    if (!promptText.trim()) {
+    const body = resolvedPrompt.trim();
+    if (!body) {
       showToast(t("playgroundEmptyPrompt"), "error");
       return;
     }
@@ -106,14 +183,19 @@ function PlaygroundPageInner() {
       const res = await fetch("/api/prompts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: promptText, category }),
+        body: JSON.stringify({
+          body,
+          category,
+          title: title.trim() || undefined,
+        }),
       });
       const json = await res.json();
       if (!res.ok || json.status !== "ok") {
-        showToast(t("playgroundSaveError"), "error");
+        showToast(json.message ?? t("playgroundSaveError"), "error");
         return;
       }
       setLastPromptId(json.data.promptId);
+      if (!title.trim()) setTitle(json.data.title);
       showToast(`${t("playgroundSaveSuccess")}: ${json.data.title}`, "success");
     } catch (e) {
       showToast(e instanceof Error ? e.message : t("playgroundSaveError"), "error");
@@ -122,135 +204,91 @@ function PlaygroundPageInner() {
     }
   }
 
-  async function handleCopy() {
-    if (!result?.responseText) return;
-    try {
-      await navigator.clipboard.writeText(result.responseText);
-      showToast(t("playgroundCopySuccess"), "success");
-    } catch {
-      showToast(t("playgroundCopyError"), "error");
-    }
+  function handleLoadRun(run: RecentRunRow) {
+    setPromptText(run.promptText);
+    setCategory(run.category);
+    showToast(t("pgLoadRunSuccess"), "info");
+  }
+
+  function handleRerun(run: RecentRunRow) {
+    setPromptText(run.promptText);
+    setCategory(run.category);
+    void handleRun(run.promptText);
+  }
+
+  function handleTemplateSelect(text: string) {
+    setPromptText(text);
+  }
+
+  function handleClearOutput() {
+    setOutput(null);
+    setMetadata(null);
+    setRunError(null);
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pws-animate-in">
       <div>
-        <h1 className="text-2xl font-bold">{t("playgroundTitle")}</h1>
-        <p className="mt-2 text-sm text-[var(--muted)]">{t("playgroundSubtitle")}</p>
+        <p className="font-[family-name:var(--font-mono)] text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-400">
+          Prompt Execution Studio
+        </p>
+        <h1 className="mt-2 text-2xl font-bold lg:text-3xl">{t("pgStudioTitle")}</h1>
+        <p className="mt-2 max-w-3xl text-sm text-[var(--muted)]">{t("pgStudioSubtitle")}</p>
       </div>
 
       <AiModeBanner />
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
-          <label className="block text-xs font-bold uppercase text-[var(--muted)]">
-            {t("playgroundCategory")}
-          </label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value as PromptCategory)}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] px-3 py-2 text-sm"
-          >
-            {PROMPT_CATEGORIES.map((c) => (
-              <option key={c.value} value={c.value}>
-                {c.label}
-              </option>
-            ))}
-          </select>
+      <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+        <PromptComposer
+          title={title}
+          onTitleChange={setTitle}
+          category={category}
+          onCategoryChange={setCategory}
+          systemInstruction={systemInstruction}
+          onSystemInstructionChange={setSystemInstruction}
+          promptText={promptText}
+          onPromptTextChange={setPromptText}
+          outputFormat={outputFormat}
+          onOutputFormatChange={setOutputFormat}
+          tone={tone}
+          onToneChange={setTone}
+          variables={variables}
+          variableValues={variableValues}
+          onVariableChange={(name, value) =>
+            setVariableValues((prev) => ({ ...prev, [name]: value }))
+          }
+          onTemplateSelect={handleTemplateSelect}
+          provider={provider}
+          modelId={modelId}
+          onModelChange={setModelId}
+          executionOptions={executionOptions}
+          onExecutionOptionsChange={setExecutionOptions}
+          running={running}
+          saving={saving}
+          onRun={() => handleRun()}
+          onSave={handleSave}
+        />
 
-          <label className="block text-xs font-bold uppercase text-[var(--muted)]">
-            {t("playgroundPromptLabel")}
-          </label>
-          <textarea
-            value={promptText}
-            onChange={(e) => setPromptText(e.target.value)}
-            rows={10}
-            placeholder={t("playgroundPromptPlaceholder")}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] px-3 py-2 text-sm"
-          />
-
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={handleRun}
-              disabled={running}
-              className="rounded-full bg-[var(--accent)] px-5 py-2 text-sm font-semibold text-white disabled:opacity-50"
-            >
-              {running ? t("playgroundRunning") : t("playgroundRun")}
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving}
-              className="rounded-full border border-[var(--border)] bg-[var(--surface-elevated)] px-5 py-2 text-sm font-semibold disabled:opacity-50"
-            >
-              {saving ? t("playgroundSaving") : t("playgroundSave")}
-            </button>
-          </div>
-        </div>
-
-        <div className="space-y-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase text-[var(--muted)]">
-              {t("playgroundResponse")}
-            </h2>
-            {result && (
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-semibold hover:bg-[var(--surface-elevated)]"
-              >
-                {t("playgroundCopy")}
-              </button>
-            )}
-          </div>
-
-          {!result ? (
-            <p className="text-sm text-[var(--muted)]">{t("playgroundNoResponse")}</p>
-          ) : (
-            <>
-              <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] p-4 text-sm">
-                {result.responseText}
-              </pre>
-              <div className="flex flex-wrap gap-3 text-xs text-[var(--muted)]">
-                <span>
-                  {t("playgroundProvider")}: {result.provider}
-                </span>
-                <span>
-                  {t("playgroundTokens")}: {result.tokenInput} → {result.tokenOutput}
-                </span>
-                <span>
-                  {t("playgroundLatency")}: {result.latencyMs}ms
-                </span>
-              </div>
-            </>
-          )}
-        </div>
+        <OutputPanel
+          output={output}
+          metadata={metadata}
+          resolvedPrompt={resolvedPrompt}
+          running={running}
+          error={runError}
+          onClear={handleClearOutput}
+          onSave={handleSave}
+          saving={saving}
+        />
       </div>
 
-      <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface-muted)] p-5">
-        <h2 className="text-sm font-bold uppercase text-[var(--muted)]">
+      <section>
+        <h2 className="mb-4 font-[family-name:var(--font-mono)] text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--muted)]">
           {t("playgroundRecentRuns")}
         </h2>
-        {recentRuns.length === 0 ? (
-          <p className="mt-4 text-sm text-[var(--muted)]">{t("recentRunsEmpty")}</p>
+        {runsLoading ? (
+          <PlaygroundSkeleton />
         ) : (
-          <ul className="mt-4 space-y-2">
-            {recentRuns.map((r) => (
-              <li
-                key={r.id}
-                className="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2 text-sm"
-              >
-                <div className="flex justify-between text-xs text-[var(--muted)]">
-                  <span>{r.category}</span>
-                  <span>{new Date(r.createdAt).toLocaleString()}</span>
-                </div>
-                <div className="mt-1 font-medium line-clamp-1">
-                  {r.promptTitle ?? r.promptText}
-                </div>
-              </li>
-            ))}
-          </ul>
+          <RecentRunsPanel runs={recentRuns} onLoad={handleLoadRun} onRerun={handleRerun} />
         )}
       </section>
     </div>
@@ -259,11 +297,7 @@ function PlaygroundPageInner() {
 
 export default function PlaygroundPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="text-sm text-[var(--muted)]">Loading playground…</div>
-      }
-    >
+    <Suspense fallback={<PlaygroundSkeleton />}>
       <PlaygroundPageInner />
     </Suspense>
   );

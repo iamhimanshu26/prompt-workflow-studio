@@ -39,9 +39,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             className={[
               "animate-[fadeIn_0.2s_ease-out] rounded-xl border px-4 py-3 text-sm font-medium shadow-lg backdrop-blur",
               t.type === "success"
-                ? "border-emerald-500/30 bg-emerald-50 text-emerald-900"
+                ? "border-emerald-500/30 bg-emerald-950/50 text-emerald-200"
                 : t.type === "error"
-                  ? "border-red-500/30 bg-red-50 text-red-900"
+                  ? "border-red-500/30 bg-red-950/50 text-red-200"
                   : "border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--foreground)]",
             ].join(" ")}
           >

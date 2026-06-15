@@ -92,7 +92,10 @@ export class MockAiProvider implements AiProvider {
     const { input, output } = mockTokens(request.prompt);
     const category = request.category ?? "GENERAL";
     const label = MODEL_LABELS[modelId];
-    const text = `> **Model:** ${label}\n\n${buildMockCompletion(request.prompt, category)}`;
+    const systemNote = request.systemHint?.trim()
+      ? `> **System:** ${request.systemHint.trim().slice(0, 120)}${request.systemHint.length > 120 ? "…" : ""}\n\n`
+      : "";
+    const text = `${systemNote}> **Model:** ${label}\n\n${buildMockCompletion(request.prompt, category)}`;
 
     return {
       text,

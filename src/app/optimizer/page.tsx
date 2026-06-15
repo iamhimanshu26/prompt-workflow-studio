@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { PromptCategory } from "@prisma/client";
 import AiModeBanner from "@/components/AiModeBanner";
 import { useLang } from "@/lib/i18n/LangProvider";
@@ -43,8 +44,17 @@ type LibraryPrompt = {
 };
 
 export default function OptimizerPage() {
+  return (
+    <Suspense fallback={<div className="text-sm text-[var(--muted)]">Loading…</div>}>
+      <OptimizerPageInner />
+    </Suspense>
+  );
+}
+
+function OptimizerPageInner() {
   const { t } = useLang();
   const { showToast } = useToast();
+  const searchParams = useSearchParams();
 
   const [roughPrompt, setRoughPrompt] = useState("");
   const [category, setCategory] = useState<PromptCategory>(PromptCategory.GENERAL);
@@ -81,6 +91,15 @@ export default function OptimizerPage() {
     loadPrompts();
     loadLibrary();
   }, [loadPrompts, loadLibrary]);
+
+  useEffect(() => {
+    const fromPlayground = searchParams.get("prompt");
+    if (fromPlayground) {
+      setRoughPrompt(decodeURIComponent(fromPlayground));
+      setResult(null);
+      showToast(t("optimizerLoadedFromPlayground"), "info");
+    }
+  }, [searchParams, showToast, t]);
 
   function loadIntoEditor(p: SavedPrompt) {
     setPromptId(p.id);
