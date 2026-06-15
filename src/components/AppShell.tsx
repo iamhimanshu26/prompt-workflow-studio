@@ -1,99 +1,52 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import { DEMO_USER } from "@/lib/auth/mock";
 import { useLang } from "@/lib/i18n/LangProvider";
-import LangToggle from "@/components/LangToggle";
-
-const NAV_ITEMS: { href: string; labelKey: string; highlight?: boolean }[] = [
-  { href: "/journey", labelKey: "navJourney" },
-  { href: "/dashboard", labelKey: "navDashboard" },
-  { href: "/playground", labelKey: "navPlayground" },
-  { href: "/optimizer", labelKey: "navOptimizer" },
-  { href: "/library", labelKey: "navLibrary" },
-  { href: "/workflows", labelKey: "navWorkflows" },
-  { href: "/any-idea", labelKey: "navAnyIdea", highlight: true },
-  { href: "/health", labelKey: "navHealth" },
-];
+import Sidebar from "@/components/enterprise/Sidebar";
+import Topbar from "@/components/enterprise/Topbar";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
   const { t } = useLang();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-40 shrink-0 border-b border-[var(--border)] bg-white/70 backdrop-blur-md">
-        <div className="mx-auto flex h-12 max-w-6xl items-center gap-3 px-4 sm:px-6">
-          <Link href="/dashboard" className="flex shrink-0 items-center gap-2">
-            <Image
-              src="/icon.svg"
-              alt=""
-              width={28}
-              height={28}
-              className="rounded-lg"
-              priority
-            />
-            <span className="hidden text-xs font-bold tracking-tight text-[var(--foreground)] sm:inline">
-              {t("appTitle")}
+    <div className="flex min-h-screen bg-[var(--background)]">
+      <div className="hidden lg:flex lg:shrink-0">
+        <Sidebar />
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Topbar
+          mobileNavOpen={mobileNavOpen}
+          onMenuClick={() => setMobileNavOpen((v) => !v)}
+        />
+
+        <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
+          <div className="mx-auto w-full max-w-7xl">{children}</div>
+        </main>
+
+        <footer className="border-t border-[var(--border)] bg-[var(--surface)] px-4 py-4 text-[11px] text-[var(--muted)] lg:px-8">
+          <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <span>
+              © {new Date().getFullYear()} Prompt Workflow Studio · {t("appTagline")}
             </span>
-          </Link>
-
-          <nav className="flex min-w-0 flex-1 items-center justify-center gap-0.5 overflow-hidden whitespace-nowrap">
-            {NAV_ITEMS.map((item) => {
-              const active =
-                pathname === item.href ||
-                (item.href !== "/health" && pathname.startsWith(`${item.href}/`));
-              const isIdea = item.highlight === true;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={[
-                    "shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold leading-none transition-colors sm:px-2.5 sm:text-[11px]",
-                    active && isIdea
-                      ? "bg-[var(--idea-accent)] text-white"
-                      : active
-                        ? "bg-[var(--accent)] text-white"
-                        : isIdea
-                          ? "text-[var(--idea-accent)] hover:bg-[var(--idea-accent)]/10"
-                          : "text-[var(--muted)] hover:bg-black/5 hover:text-[var(--foreground)]",
-                  ].join(" ")}
-                >
-                  {t(item.labelKey)}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="shrink-0">
-            <LangToggle />
+            <div className="flex items-center gap-4">
+              <a href="/health" className="hover:text-[var(--foreground)]">
+                {t("navHealth")}
+              </a>
+              <a
+                href="https://github.com/iamhimanshu26/prompt-workflow-studio"
+                className="hover:text-[var(--foreground)]"
+                rel="noreferrer"
+              >
+                GitHub
+              </a>
+              <span>{DEMO_USER.email}</span>
+            </div>
           </div>
-        </div>
-      </header>
-
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">{children}</main>
-
-      <footer className="mt-auto shrink-0 border-t border-[var(--border)] bg-white/50">
-        <div className="mx-auto flex h-12 max-w-6xl items-center justify-between gap-3 px-4 text-[11px] text-[var(--muted)] sm:px-6">
-          <span>© {new Date().getFullYear()} Prompt Workflow Studio</span>
-          <div className="flex items-center gap-3">
-            <a href="/health" className="hover:underline">
-              {t("navHealth")}
-            </a>
-            <a
-              href="https://github.com/iamhimanshu26/prompt-workflow-studio"
-              className="hover:underline"
-              rel="noreferrer"
-            >
-              GitHub
-            </a>
-            <span className="hidden text-[10px] sm:inline">{DEMO_USER.email}</span>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 }

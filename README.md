@@ -62,6 +62,34 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). API health: [http://localhost:3000/health](http://localhost:3000/health).
 
+### Database setup (Neon PostgreSQL)
+
+This project uses an **existing Neon PostgreSQL** database with **Prisma**. Do not replace the database layer.
+
+1. Create or open your Neon project at [neon.tech](https://neon.tech).
+2. Copy the **connection string** (pooled URL recommended for Vercel).
+3. Paste it into `.env` as `DATABASE_URL` (and into Vercel → Environment Variables for production).
+4. Sync schema and generate client:
+
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+5. Optional seed data:
+
+```bash
+npm run db:seed
+```
+
+6. Start the app:
+
+```bash
+npm run dev
+```
+
+Important app data (prompts, runs, versions, ideas, workflows) is stored in **PostgreSQL via Prisma**, not in `localStorage`. Only UI language preference uses `localStorage` (`pws_lang`).
+
 ### Environment variables
 
 | Variable | Description |

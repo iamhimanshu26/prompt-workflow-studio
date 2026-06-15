@@ -1,34 +1,24 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import EmptyState from "@/components/enterprise/EmptyState";
+import ErrorState from "@/components/enterprise/ErrorState";
+import LifecycleCard from "@/components/enterprise/LifecycleCard";
+import LoadingSkeleton from "@/components/enterprise/LoadingSkeleton";
+import PageHeader from "@/components/enterprise/PageHeader";
+import QuickActionCard from "@/components/enterprise/QuickActionCard";
+import RecentActivityList from "@/components/enterprise/RecentActivityList";
+import StatCard from "@/components/enterprise/StatCard";
+import StatusBadge from "@/components/enterprise/StatusBadge";
+import SystemHealthCard from "@/components/enterprise/SystemHealthCard";
 import { useLang } from "@/lib/i18n/LangProvider";
-import type { AiModelId, PromptCategory } from "@prisma/client";
-
-type DashboardResponse = {
-  status: "ok" | "error";
-  data?: {
-    promptsCount: number;
-    runsCount: number;
-    avgScore: number | null;
-    categories: { category: PromptCategory; count: number }[];
-    recentRuns: {
-      id: string;
-      createdAt: string;
-      category: PromptCategory;
-      modelId: AiModelId;
-      promptTitle: string;
-      score: number | null;
-    }[];
-  };
-  message?: string;
-};
+import type { DashboardApiResponse, DashboardPayload } from "@/types/dashboard";
 
 export default function DashboardPage() {
   const { t } = useLang();
-
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const [data, setData] = useState<DashboardResponse["data"] | null>(null);
+  const [data, setData] = useState<DashboardPayload | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -36,23 +26,23 @@ export default function DashboardPage() {
     async function run() {
       try {
         const res = await fetch("/api/dashboard", { cache: "no-store" });
-        const json = (await res.json()) as DashboardResponse;
+        const json = (await res.json()) as DashboardApiResponse;
         if (cancelled) return;
 
-        if (!res.ok || json.status !== "ok" || !json.data) {
-          setErr(json.message ?? "Failed to load");
+        if (!res.ok || json.status !== "ok") {
+          setErr(json.status === "error" ? json.message : t("dashboardError"));
           setData(null);
-          setLoading(false);
           return;
         }
 
         setData(json.data);
         setErr(null);
-        setLoading(false);
       } catch (e) {
         if (cancelled) return;
-        setErr(e instanceof Error ? e.message : "Failed to load dashboard");
-        setLoading(false);
+        setErr(e instanceof Error ? e.message : t("dashboardError"));
+        setData(null);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
 
@@ -60,108 +50,194 @@ export default function DashboardPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
   if (loading) {
-    return (
-      <div>
-        <h1 className="text-2xl font-bold">{t("dashboardTitle")}</h1>
-        <p className="mt-2 text-sm text-[var(--muted)]">{t("dashboardLoading")}</p>
-      </div>
-    );
+    return <LoadingSkeleton />;
   }
 
   if (err || !data) {
     return (
-      <div>
-        <h1 className="text-2xl font-bold">{t("dashboardTitle")}</h1>
-        <p className="mt-2 text-sm text-red-300">{t("dashboardError")}</p>
+      <div className="space-y-6">
+        <PageHeader title={t("commandCenterTitle")} description={t("commandCenterSubtitle")} />
+        <ErrorState title={t("dashboardError")} message={err ?? t("dashboardError")} />
       </div>
     );
   }
 
-  const avgScoreText = data.avgScore == null ? "—" : `${data.avgScore}`;
+  const { stats, system } = data;
+  const hasActivity =
+    stats.totalRuns > 0 ||
+    stats.totalPrompts > 0 ||
+    stats.totalIdeas > 0 ||
+    stats.totalWorkflows > 0;
+
+  const dbBadgeStatus =
+    system.databaseStatus === "ok" ? "ok" : system.databaseStatus === "unconfigured" ? "warn" : "error";
+
+  const aiBadgeStatus = system.aiProvider === "openai" ? "ok" : "warn";
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{t("dashboardTitle")}</h1>
-        <p className="mt-2 text-sm text-[var(--muted)]">{t("dashboardHint")}</p>
-      </div>
+    <div className="space-y-8">
+      <PageHeader title={t("commandCenterTitle")} description={t("commandCenterSubtitle")}>
+        <StatusBadge label={`Database ${system.databaseStatus}`} status={dbBadgeStatus} />
+        <StatusBadge label={`AI ${system.aiProvider}`} status={aiBadgeStatus} />
+      </PageHeader>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-          <div className="text-xs font-semibold text-[var(--muted)]">{t("promptsCountLabel")}</div>
-          <div className="mt-2 text-3xl font-bold">{data.promptsCount}</div>
-        </div>
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-          <div className="text-xs font-semibold text-[var(--muted)]">{t("runsCountLabel")}</div>
-          <div className="mt-2 text-3xl font-bold">{data.runsCount}</div>
-        </div>
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-          <div className="text-xs font-semibold text-[var(--muted)]">{t("avgScoreLabel")}</div>
-          <div className="mt-2 text-3xl font-bold">{avgScoreText}</div>
-          <div className="mt-1 text-xs text-[var(--muted)]">/ 100</div>
-        </div>
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-          <div className="text-xs font-semibold text-[var(--muted)]">{t("categoriesTitle")}</div>
-          <div className="mt-2 space-y-1">
-            {data.categories.slice(0, 3).map((c) => (
-              <div key={c.category} className="flex items-center justify-between gap-3 text-sm">
-                <span className="text-[var(--muted)]">{c.category}</span>
-                <span className="font-semibold">{c.count}</span>
-              </div>
-            ))}
-            {data.categories.length === 0 && (
-              <div className="text-sm text-[var(--muted)]">—</div>
-            )}
-          </div>
-        </div>
-      </div>
+      {system.databaseStatus !== "ok" && (
+        <ErrorState
+          title={t("databaseUnavailableTitle")}
+          message={system.databaseMessage ?? t("databaseUnavailableBody")}
+        />
+      )}
 
-      <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold">{t("recentRunsTitle")}</h2>
+      <section>
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--muted)]">
+          {t("kpiSectionTitle")}
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
+          <StatCard label={t("totalPromptsLabel")} value={stats.totalPrompts} />
+          <StatCard label={t("totalRunsLabel")} value={stats.totalRuns} />
+          <StatCard
+            label={t("avgScoreLabel")}
+            value={stats.averageScore ?? "—"}
+            hint="/ 100"
+          />
+          <StatCard label={t("totalIdeasLabel")} value={stats.totalIdeas} />
+          <StatCard label={t("totalWorkflowsLabel")} value={stats.totalWorkflows} />
+          <StatCard label={t("aiProviderStatusLabel")} value={system.aiProvider} />
+          <StatCard label={t("databaseStatusLabel")} value={system.databaseStatus} />
         </div>
+      </section>
 
-        {data.recentRuns.length === 0 ? (
-          <p className="mt-4 text-sm text-[var(--muted)]">{t("recentRunsEmpty")}</p>
-        ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
-              <thead className="text-xs uppercase text-[var(--muted)]">
-                <tr>
-                  <th className="px-3 py-2">{t("tableCreatedAt")}</th>
-                  <th className="px-3 py-2">{t("tableCategory")}</th>
-                  <th className="px-3 py-2">{t("tableModel")}</th>
-                  <th className="px-3 py-2">{t("tablePrompt")}</th>
-                  <th className="px-3 py-2">{t("tableScore")}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border)]">
-                {data.recentRuns.map((r) => (
-                  <tr key={r.id} className="text-[var(--foreground)]">
-                    <td className="px-3 py-2 text-xs text-[var(--muted)]">
-                      {new Date(r.createdAt).toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 text-xs text-[var(--muted)]">{r.category}</td>
-                    <td className="px-3 py-2 text-xs text-[var(--muted)]">{r.modelId}</td>
-                    <td className="px-3 py-2">
-                      <span className="line-clamp-2 inline-block max-w-[320px]">
-                        {r.promptTitle}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 font-semibold">
-                      {r.score == null ? "—" : r.score}
-                    </td>
-                  </tr>
+      <section>
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--muted)]">
+          {t("lifecycleSectionTitle")}
+        </h2>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <LifecycleCard
+            title={t("lifecycleCreate")}
+            description={t("lifecycleCreateDesc")}
+            href="/playground"
+            status={stats.totalPrompts > 0 ? "active" : "ready"}
+            statusLabel={stats.totalPrompts > 0 ? t("statusActive") : t("statusReady")}
+          />
+          <LifecycleCard
+            title={t("lifecycleTest")}
+            description={t("lifecycleTestDesc")}
+            href="/playground"
+            status={stats.totalRuns > 0 ? "active" : "ready"}
+            statusLabel={stats.totalRuns > 0 ? t("statusActive") : t("statusReady")}
+          />
+          <LifecycleCard
+            title={t("lifecycleOptimize")}
+            description={t("lifecycleOptimizeDesc")}
+            href="/optimizer"
+            status={data.recentVersions.length > 0 ? "active" : "ready"}
+            statusLabel={data.recentVersions.length > 0 ? t("statusActive") : t("statusReady")}
+          />
+          <LifecycleCard
+            title={t("lifecycleVersion")}
+            description={t("lifecycleVersionDesc")}
+            href="/optimizer"
+            status="planned"
+            statusLabel={t("statusPlanned")}
+          />
+          <LifecycleCard
+            title={t("lifecycleEvaluate")}
+            description={t("lifecycleEvaluateDesc")}
+            href="/dashboard"
+            status={stats.averageScore != null ? "ready" : "planned"}
+            statusLabel={stats.averageScore != null ? t("statusReady") : t("statusPlanned")}
+          />
+          <LifecycleCard
+            title={t("lifecycleWorkflow")}
+            description={t("lifecycleWorkflowDesc")}
+            href="/workflows"
+            status={stats.totalWorkflows > 0 ? "active" : "planned"}
+            statusLabel={stats.totalWorkflows > 0 ? t("statusActive") : t("statusPlanned")}
+          />
+        </div>
+      </section>
+
+      <div className="grid gap-6 xl:grid-cols-3">
+        <section className="xl:col-span-2">
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--muted)]">
+            {t("recentActivityTitle")}
+          </h2>
+          {hasActivity ? (
+            <RecentActivityList
+              runs={data.recentRuns}
+              prompts={data.recentPrompts}
+              versions={data.recentVersions}
+              ideas={data.recentIdeas}
+              workflows={data.recentWorkflows}
+              emptyTitle={t("activityEmptyTitle")}
+              emptyDescription={t("activityEmptyBody")}
+            />
+          ) : (
+            <EmptyState title={t("activityEmptyTitle")} description={t("activityEmptyBody")} />
+          )}
+        </section>
+
+        <div className="space-y-6">
+          <section>
+            <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--muted)]">
+              {t("categorySectionTitle")}
+            </h2>
+            {data.categoryCounts.length === 0 ? (
+              <EmptyState
+                title={t("categoryEmptyTitle")}
+                description={t("categoryEmptyBody")}
+              />
+            ) : (
+              <ul className="space-y-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+                {data.categoryCounts.map((c) => (
+                  <li key={c.category} className="flex items-center justify-between text-sm">
+                    <span className="text-[var(--muted)]">{c.category}</span>
+                    <span className="font-semibold">{c.count}</span>
+                  </li>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+              </ul>
+            )}
+          </section>
+
+          <SystemHealthCard system={data.system} />
+        </div>
       </div>
+
+      <section>
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--muted)]">
+          {t("quickActionsTitle")}
+        </h2>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <QuickActionCard
+            href="/playground"
+            title={t("quickTestExecution")}
+            description={t("quickTestExecutionDesc")}
+          />
+          <QuickActionCard
+            href="/optimizer"
+            title={t("quickOptimize")}
+            description={t("quickOptimizeDesc")}
+          />
+          <QuickActionCard
+            href="/any-idea"
+            title={t("quickCaptureIdea")}
+            description={t("quickCaptureIdeaDesc")}
+          />
+          <QuickActionCard
+            href="/library"
+            title={t("quickLibrary")}
+            description={t("quickLibraryDesc")}
+          />
+          <QuickActionCard
+            href="/workflows"
+            title={t("quickWorkflow")}
+            description={t("quickWorkflowDesc")}
+          />
+        </div>
+      </section>
     </div>
   );
 }
-
