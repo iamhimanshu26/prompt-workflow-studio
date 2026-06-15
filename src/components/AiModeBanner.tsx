@@ -52,23 +52,23 @@ export default function AiModeBanner() {
       className={[
         "rounded-xl border px-4 py-3 text-sm",
         isQuota
-          ? "border-red-300/60 bg-red-50 text-red-950"
-          : "border-amber-300/50 bg-amber-50/90 text-amber-950",
+          ? "border-red-500/40 bg-red-950/40 text-red-200"
+          : "border-amber-500/40 bg-amber-950/30 text-amber-100",
       ].join(" ")}
     >
       {isQuota ? (
         <>
           <span className="font-semibold">{t("aiQuotaBannerTitle")}</span>
-          <p className="mt-1 text-red-900/90">{warning ?? t("aiQuotaBannerBody")}</p>
+          <p className="mt-1 text-red-300/90">{warning ?? t("aiQuotaBannerBody")}</p>
         </>
       ) : (
         <>
           <span className="font-semibold">{t("aiMockBannerTitle")}</span>
-          <span className="text-amber-900/90"> — {t("aiMockBannerBody")}</span>
+          <span className="text-amber-200/90"> — {t("aiMockBannerBody")}</span>
         </>
       )}
       {info && (
-        <ul className="mt-2 list-inside list-disc text-xs text-amber-900/80">
+        <ul className="mt-2 list-inside list-disc text-xs text-amber-200/70">
           <li>
             AI_PROVIDER env: <code>{info.aiProviderEnv ?? "(not set)"}</code>
           </li>

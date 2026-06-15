@@ -141,7 +141,7 @@ export default function AnyIdeaPage() {
           onChange={(e) => setRoughNotes(e.target.value)}
           placeholder={t("anyIdeaPlaceholder")}
           rows={6}
-          className="mt-2 w-full resize-y rounded-xl border border-[var(--border)] bg-white/80 px-4 py-3 text-sm outline-none ring-[var(--idea-accent)]/30 focus:ring-2"
+          className="mt-2 w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 text-sm outline-none ring-[var(--idea-accent)]/30 focus:ring-2"
         />
 
         <div className="mt-4 flex flex-wrap gap-3">
@@ -158,7 +158,7 @@ export default function AnyIdeaPage() {
             type="button"
             onClick={handleSave}
             disabled={refining || loading}
-            className="rounded-xl border border-[var(--border)] bg-white/80 px-4 py-2.5 text-sm font-semibold text-[var(--muted)] hover:bg-white disabled:opacity-50"
+            className="rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-2.5 text-sm font-semibold text-[var(--muted)] hover:bg-white disabled:opacity-50"
           >
             {loading ? t("anyIdeaSaving") : t("anyIdeaSaveRaw")}
           </button>
@@ -166,7 +166,7 @@ export default function AnyIdeaPage() {
       </div>
 
       {refinedPreview && (
-        <div className="rounded-2xl border border-[var(--idea-accent)]/40 bg-white/80 p-5">
+        <div className="rounded-2xl border border-[var(--idea-accent)]/40 bg-[var(--surface-elevated)] p-5">
           <h2 className="text-sm font-bold uppercase tracking-wide text-[var(--idea-accent)]">
             {t("anyIdeaRefinedPreview")}
           </h2>

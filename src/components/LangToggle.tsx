@@ -9,7 +9,7 @@ export default function LangToggle() {
 
   return (
     <div
-      className="flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white/80 px-2 py-0.5 shadow-sm"
+      className="flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface-elevated)] px-2 py-0.5"
       aria-label="Language toggle"
     >
       <button

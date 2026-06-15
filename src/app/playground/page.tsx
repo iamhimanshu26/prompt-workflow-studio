@@ -149,7 +149,7 @@ function PlaygroundPageInner() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as PromptCategory)}
-            className="w-full rounded-lg border border-[var(--border)] bg-white/80 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] px-3 py-2 text-sm"
           >
             {PROMPT_CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
@@ -166,7 +166,7 @@ function PlaygroundPageInner() {
             onChange={(e) => setPromptText(e.target.value)}
             rows={10}
             placeholder={t("playgroundPromptPlaceholder")}
-            className="w-full rounded-lg border border-[var(--border)] bg-white/80 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] px-3 py-2 text-sm"
           />
 
           <div className="flex flex-wrap gap-2">
@@ -182,7 +182,7 @@ function PlaygroundPageInner() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="rounded-full border border-[var(--border)] bg-white/80 px-5 py-2 text-sm font-semibold disabled:opacity-50"
+              className="rounded-full border border-[var(--border)] bg-[var(--surface-elevated)] px-5 py-2 text-sm font-semibold disabled:opacity-50"
             >
               {saving ? t("playgroundSaving") : t("playgroundSave")}
             </button>
@@ -198,7 +198,7 @@ function PlaygroundPageInner() {
               <button
                 type="button"
                 onClick={handleCopy}
-                className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-semibold hover:bg-white"
+                className="rounded-full border border-[var(--border)] px-3 py-1 text-xs font-semibold hover:bg-[var(--surface-elevated)]"
               >
                 {t("playgroundCopy")}
               </button>
@@ -209,7 +209,7 @@ function PlaygroundPageInner() {
             <p className="text-sm text-[var(--muted)]">{t("playgroundNoResponse")}</p>
           ) : (
             <>
-              <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded-lg border border-[var(--border)] bg-white/70 p-4 text-sm">
+              <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] p-4 text-sm">
                 {result.responseText}
               </pre>
               <div className="flex flex-wrap gap-3 text-xs text-[var(--muted)]">
@@ -228,7 +228,7 @@ function PlaygroundPageInner() {
         </div>
       </div>
 
-      <section className="rounded-2xl border border-[var(--border)] bg-white/50 p-5">
+      <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface-muted)] p-5">
         <h2 className="text-sm font-bold uppercase text-[var(--muted)]">
           {t("playgroundRecentRuns")}
         </h2>
@@ -239,7 +239,7 @@ function PlaygroundPageInner() {
             {recentRuns.map((r) => (
               <li
                 key={r.id}
-                className="rounded-lg border border-[var(--border)] bg-white/60 px-3 py-2 text-sm"
+                className="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2 text-sm"
               >
                 <div className="flex justify-between text-xs text-[var(--muted)]">
                   <span>{r.category}</span>

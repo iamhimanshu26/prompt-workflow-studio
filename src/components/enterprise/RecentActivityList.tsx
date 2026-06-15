@@ -6,6 +6,7 @@ import type {
   DashboardRecentVersion,
   DashboardRecentWorkflow,
 } from "@/types/dashboard";
+import GlowCard from "./GlowCard";
 
 type ActivityItem = {
   id: string;
@@ -25,7 +26,7 @@ function buildItems(
   const items: ActivityItem[] = [
     ...runs.map((r) => ({
       id: `run-${r.id}`,
-      type: "Prompt Run",
+      type: "Prompt Execution",
       title: r.promptTitle,
       meta: `${r.category} · ${r.modelId}`,
       at: r.createdAt,
@@ -39,7 +40,7 @@ function buildItems(
     })),
     ...versions.map((v) => ({
       id: `version-${v.id}`,
-      type: "Optimized Version",
+      type: "Optimization",
       title: `${v.promptTitle} (${v.name})`,
       meta: `v${v.version}`,
       at: v.createdAt,
@@ -84,29 +85,32 @@ export default function RecentActivityList({
 
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--surface-muted)] px-6 py-8 text-center">
-        <p className="font-semibold">{emptyTitle}</p>
+      <GlowCard glow={false} className="border-dashed px-6 py-8 text-center">
+        <p className="font-semibold text-[var(--foreground)]">{emptyTitle}</p>
         <p className="mt-2 text-sm text-[var(--muted)]">{emptyDescription}</p>
-      </div>
+      </GlowCard>
     );
   }
 
   return (
-    <ul className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+    <GlowCard glow={false} className="divide-y divide-[var(--border)] overflow-hidden p-0">
       {items.map((item) => (
-        <li key={item.id} className="flex items-start justify-between gap-4 px-4 py-3">
+        <div
+          key={item.id}
+          className="flex items-start justify-between gap-4 px-4 py-3 transition hover:bg-cyan-500/5"
+        >
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--accent)]">
+            <p className="font-[family-name:var(--font-mono)] text-[9px] font-bold uppercase tracking-wider text-cyan-400/90">
               {item.type}
             </p>
             <p className="mt-0.5 truncate font-medium text-[var(--foreground)]">{item.title}</p>
             <p className="text-xs text-[var(--muted)]">{item.meta}</p>
           </div>
-          <time className="shrink-0 text-[10px] text-[var(--muted)]">
+          <time className="shrink-0 font-[family-name:var(--font-mono)] text-[9px] text-[var(--muted)]">
             {new Date(item.at).toLocaleString()}
           </time>
-        </li>
+        </div>
       ))}
-    </ul>
+    </GlowCard>
   );
 }

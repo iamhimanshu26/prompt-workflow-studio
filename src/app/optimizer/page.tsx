@@ -188,7 +188,7 @@ export default function OptimizerPage() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as PromptCategory)}
-            className="mt-1 block rounded-lg border border-[var(--border)] bg-white/80 px-3 py-2 text-sm"
+            className="mt-1 block rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] px-3 py-2 text-sm"
           >
             {PROMPT_CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
@@ -214,7 +214,7 @@ export default function OptimizerPage() {
                 const p = savedPrompts.find((x) => x.id === id);
                 if (p) loadIntoEditor(p);
               }}
-              className="mt-1 block w-full rounded-lg border border-[var(--border)] bg-white/80 px-3 py-2 text-sm"
+              className="mt-1 block w-full rounded-lg border border-[var(--border)] bg-[var(--surface-elevated)] px-3 py-2 text-sm"
             >
               <option value="">{t("optimizerNewPrompt")}</option>
               {savedPrompts.map((p) => (
@@ -237,7 +237,7 @@ export default function OptimizerPage() {
             onChange={(e) => setRoughPrompt(e.target.value)}
             placeholder={t("optimizerRoughPlaceholder")}
             rows={14}
-            className="mt-3 w-full resize-y rounded-xl border border-[var(--border)] bg-white/80 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]/40"
+            className="mt-3 w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]/40"
           />
           <button
             type="button"
@@ -268,14 +268,14 @@ export default function OptimizerPage() {
                   {result.provider}
                 </span>
               </div>
-              <pre className="mt-3 max-h-[320px] overflow-auto whitespace-pre-wrap rounded-xl border border-[var(--border)] bg-white/90 p-4 font-sans text-sm leading-relaxed">
+              <pre className="mt-3 max-h-[320px] overflow-auto whitespace-pre-wrap rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] p-4 font-sans text-sm leading-relaxed">
                 {result.optimized}
               </pre>
               <div className="mt-4 flex flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="rounded-xl border border-[var(--border)] bg-white/80 px-4 py-2 text-sm font-semibold hover:bg-white"
+                  className="rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-2 text-sm font-semibold hover:bg-[var(--surface-elevated)]"
                 >
                   {t("playgroundCopy")}
                 </button>
@@ -293,7 +293,7 @@ export default function OptimizerPage() {
                 </button>
                 <Link
                   href={`/playground?prompt=${encodeURIComponent(result.optimized)}`}
-                  className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--muted)] hover:bg-white/80"
+                  className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--muted)] hover:bg-[var(--surface-elevated)]"
                 >
                   {t("optimizerTryPlayground")} →
                 </Link>
@@ -307,7 +307,7 @@ export default function OptimizerPage() {
 
       <section
         ref={libraryRef}
-        className="rounded-2xl border border-[var(--border)] bg-white/55 p-5"
+        className="rounded-2xl border border-[var(--border)] bg-[var(--surface-muted)] p-5"
       >
         <h2 className="text-lg font-bold">{t("optimizerSavedInDbTitle")}</h2>
         <p className="mt-1 text-sm text-[var(--muted)]">{t("optimizerSavedInDbHint")}</p>
@@ -346,7 +346,7 @@ export default function OptimizerPage() {
                     {p.versions.map((v) => (
                       <li
                         key={v.id}
-                        className="rounded-lg border border-[var(--border)] bg-white/70 px-3 py-2 text-xs"
+                        className="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2 text-xs"
                       >
                         <div className="flex justify-between gap-2 font-semibold">
                           <span>

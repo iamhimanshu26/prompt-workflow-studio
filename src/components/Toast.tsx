@@ -42,7 +42,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 ? "border-emerald-500/30 bg-emerald-50 text-emerald-900"
                 : t.type === "error"
                   ? "border-red-500/30 bg-red-50 text-red-900"
-                  : "border-[var(--border)] bg-white/90 text-[var(--foreground)]",
+                  : "border-[var(--border)] bg-[var(--surface-elevated)] text-[var(--foreground)]",
             ].join(" ")}
           >
             {t.message}

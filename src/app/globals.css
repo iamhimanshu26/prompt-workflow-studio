@@ -1,17 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f1f5f9;
-  --foreground: #0f172a;
-  --surface: #ffffff;
-  --surface-muted: #f8fafc;
-  --card: rgba(255, 255, 255, 0.92);
-  --border: rgba(15, 23, 42, 0.1);
-  --accent: #059669;
-  --idea-accent: #d97706;
-  --accent-muted: #0284c7;
-  --success: #059669;
-  --muted: rgba(15, 23, 42, 0.58);
+  --background: #060a12;
+  --foreground: #e8edf7;
+  --surface: rgba(12, 18, 32, 0.82);
+  --surface-elevated: rgba(18, 26, 46, 0.92);
+  --surface-muted: rgba(10, 15, 28, 0.65);
+  --card: rgba(14, 22, 40, 0.78);
+  --border: rgba(56, 189, 248, 0.14);
+  --border-strong: rgba(129, 140, 248, 0.28);
+  --accent: #22d3ee;
+  --accent-secondary: #818cf8;
+  --idea-accent: #f59e0b;
+  --success: #34d399;
+  --warn: #fbbf24;
+  --danger: #f87171;
+  --muted: rgba(148, 163, 184, 0.78);
+  --glow-cyan: rgba(34, 211, 238, 0.22);
+  --glow-violet: rgba(129, 140, 248, 0.18);
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
   --sidebar-width: 16rem;
 }
 
@@ -34,16 +41,17 @@ body {
   overflow-x: hidden;
 }
 
-/* Subtle enterprise backdrop */
+/* Aurora + grid control room backdrop */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(circle at 10% 10%, rgba(5, 150, 105, 0.06), transparent 35%),
-    radial-gradient(circle at 90% 0%, rgba(2, 132, 199, 0.05), transparent 30%),
-    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-  z-index: -2;
+    radial-gradient(ellipse 80% 50% at 15% -10%, var(--glow-cyan), transparent 55%),
+    radial-gradient(ellipse 60% 45% at 85% 5%, var(--glow-violet), transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 100%, rgba(34, 211, 238, 0.06), transparent 60%),
+    linear-gradient(165deg, #060a12 0%, #0a1020 45%, #070b14 100%);
+  z-index: -3;
   pointer-events: none;
 }
 
@@ -51,46 +59,149 @@ body::after {
   content: "";
   position: fixed;
   inset: 0;
-  background: transparent;
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, black 20%, transparent 75%);
+  z-index: -2;
+  pointer-events: none;
+  animation: pwsGridDrift 40s linear infinite;
+}
+
+.pws-grain {
+  position: fixed;
+  inset: 0;
   z-index: -1;
   pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-@keyframes pwsGradientShift {
-  0% {
-    transform: translate3d(-2%, -1%, 0) scale(1);
-    filter: blur(70px) saturate(115%);
-  }
-  50% {
-    transform: translate3d(2%, 1.5%, 0) scale(1.02);
-  }
-  100% {
-    transform: translate3d(1%, -2%, 0) scale(1.04);
-  }
-}
-
-@keyframes pwsPulse {
-  0% {
-    opacity: 0.9;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-/* Ensure page content stays above background layers */
 body > * {
   position: relative;
   z-index: 1;
 }
 
+@keyframes pwsGridDrift {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(48px);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes pwsStaggerIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pwsGlowPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px 2px rgba(34, 211, 238, 0.15);
+  }
+}
+
+@keyframes pwsStatusPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes pwsFloatNode {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes pwsShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pwsBorderGlow {
+  0%,
+  100% {
+    border-color: rgba(34, 211, 238, 0.2);
+  }
+  50% {
+    border-color: rgba(129, 140, 248, 0.45);
+  }
+}
+
+.pws-animate-in {
+  animation: pwsStaggerIn 0.55s ease-out both;
+}
+
+.pws-hover-glow {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.pws-hover-glow:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px -12px rgba(34, 211, 238, 0.25),
+    0 0 0 1px rgba(129, 140, 248, 0.2);
+  border-color: rgba(34, 211, 238, 0.35);
+}
+
+.pws-float-node {
+  animation: pwsFloatNode 4s ease-in-out infinite;
+}
+
+.pws-status-pulse {
+  animation: pwsStatusPulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after,
+  .pws-status-pulse,
+  .pws-float-node {
+    animation: none !important;
+  }
+
+  .pws-animate-in,
+  .pws-hover-glow:hover {
+    animation: none !important;
+    transform: none !important;
   }
 }

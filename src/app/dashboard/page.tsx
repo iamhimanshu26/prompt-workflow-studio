@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import CategoryDistribution from "@/components/enterprise/CategoryDistribution";
+import CommandHero from "@/components/enterprise/CommandHero";
 import EmptyState from "@/components/enterprise/EmptyState";
 import ErrorState from "@/components/enterprise/ErrorState";
-import LifecycleCard from "@/components/enterprise/LifecycleCard";
+import LifecyclePipeline, { type PipelineStep } from "@/components/enterprise/LifecyclePipeline";
 import LoadingSkeleton from "@/components/enterprise/LoadingSkeleton";
-import PageHeader from "@/components/enterprise/PageHeader";
 import QuickActionCard from "@/components/enterprise/QuickActionCard";
 import RecentActivityList from "@/components/enterprise/RecentActivityList";
 import StatCard from "@/components/enterprise/StatCard";
-import StatusBadge from "@/components/enterprise/StatusBadge";
 import SystemHealthCard from "@/components/enterprise/SystemHealthCard";
 import { useLang } from "@/lib/i18n/LangProvider";
 import type { DashboardApiResponse, DashboardPayload } from "@/types/dashboard";
@@ -52,14 +52,11 @@ export default function DashboardPage() {
     };
   }, [t]);
 
-  if (loading) {
-    return <LoadingSkeleton />;
-  }
+  if (loading) return <LoadingSkeleton />;
 
   if (err || !data) {
     return (
       <div className="space-y-6">
-        <PageHeader title={t("commandCenterTitle")} description={t("commandCenterSubtitle")} />
         <ErrorState title={t("dashboardError")} message={err ?? t("dashboardError")} />
       </div>
     );
@@ -72,17 +69,69 @@ export default function DashboardPage() {
     stats.totalIdeas > 0 ||
     stats.totalWorkflows > 0;
 
-  const dbBadgeStatus =
-    system.databaseStatus === "ok" ? "ok" : system.databaseStatus === "unconfigured" ? "warn" : "error";
-
-  const aiBadgeStatus = system.aiProvider === "openai" ? "ok" : "warn";
+  const pipelineSteps: PipelineStep[] = [
+    {
+      key: "create",
+      title: t("lifecycleCreate"),
+      description: t("lifecycleCreateDesc"),
+      href: "/playground",
+      status: stats.totalPrompts > 0 ? "active" : "partial",
+      statusLabel: stats.totalPrompts > 0 ? t("statusActive") : t("statusReady"),
+    },
+    {
+      key: "test",
+      title: t("lifecycleTest"),
+      description: t("lifecycleTestDesc"),
+      href: "/playground",
+      status: stats.totalRuns > 0 ? "active" : "partial",
+      statusLabel: stats.totalRuns > 0 ? t("statusActive") : t("statusReady"),
+    },
+    {
+      key: "optimize",
+      title: t("lifecycleOptimize"),
+      description: t("lifecycleOptimizeDesc"),
+      href: "/optimizer",
+      status: data.recentVersions.length > 0 ? "active" : "partial",
+      statusLabel: data.recentVersions.length > 0 ? t("statusActive") : t("statusReady"),
+    },
+    {
+      key: "version",
+      title: t("lifecycleVersion"),
+      description: t("lifecycleVersionDesc"),
+      href: "/optimizer",
+      status: "planned",
+      statusLabel: t("statusPartial"),
+    },
+    {
+      key: "evaluate",
+      title: t("lifecycleEvaluate"),
+      description: t("lifecycleEvaluateDesc"),
+      href: "/dashboard",
+      status: stats.averageScore != null ? "partial" : "planned",
+      statusLabel: stats.averageScore != null ? t("statusPartial") : t("statusPlanned"),
+    },
+    {
+      key: "automate",
+      title: t("lifecycleAutomate"),
+      description: t("lifecycleAutomateDesc"),
+      href: "/workflows",
+      status: stats.totalWorkflows > 0 ? "partial" : "planned",
+      statusLabel: stats.totalWorkflows > 0 ? t("statusPartial") : t("statusPlanned"),
+    },
+  ];
 
   return (
     <div className="space-y-8">
-      <PageHeader title={t("commandCenterTitle")} description={t("commandCenterSubtitle")}>
-        <StatusBadge label={`Database ${system.databaseStatus}`} status={dbBadgeStatus} />
-        <StatusBadge label={`AI ${system.aiProvider}`} status={aiBadgeStatus} />
-      </PageHeader>
+      <CommandHero
+        title={t("commandCenterTitle")}
+        subtitle={t("commandCenterSubtitle")}
+        dbStatus={system.databaseStatus}
+        aiProvider={system.aiProvider}
+        ctaPrimary={t("quickTestExecution")}
+        ctaSecondary={t("quickOptimize")}
+        ctaPrimaryHref="/playground"
+        ctaSecondaryHref="/optimizer"
+      />
 
       {system.databaseStatus !== "ok" && (
         <ErrorState
@@ -92,77 +141,43 @@ export default function DashboardPage() {
       )}
 
       <section>
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--muted)]">
+        <h2 className="mb-4 font-[family-name:var(--font-mono)] text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--muted)]">
           {t("kpiSectionTitle")}
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
-          <StatCard label={t("totalPromptsLabel")} value={stats.totalPrompts} />
-          <StatCard label={t("totalRunsLabel")} value={stats.totalRuns} />
-          <StatCard
-            label={t("avgScoreLabel")}
-            value={stats.averageScore ?? "—"}
-            hint="/ 100"
-          />
-          <StatCard label={t("totalIdeasLabel")} value={stats.totalIdeas} />
-          <StatCard label={t("totalWorkflowsLabel")} value={stats.totalWorkflows} />
-          <StatCard label={t("aiProviderStatusLabel")} value={system.aiProvider} />
-          <StatCard label={t("databaseStatusLabel")} value={system.databaseStatus} />
+          <StatCard icon="◆" label={t("totalPromptsLabel")} value={stats.totalPrompts} description={t("statPromptsDesc")} />
+          <StatCard icon="▶" label={t("totalRunsLabel")} value={stats.totalRuns} description={t("statRunsDesc")} />
+          <StatCard icon="◎" label={t("avgScoreLabel")} value={stats.averageScore ?? "—"} hint="/100" description={t("statScoreDesc")} animate={stats.averageScore != null} />
+          <StatCard icon="✦" label={t("totalIdeasLabel")} value={stats.totalIdeas} description={t("statIdeasDesc")} />
+          <StatCard icon="⬡" label={t("totalWorkflowsLabel")} value={stats.totalWorkflows} description={t("statWorkflowsDesc")} />
+          <StatCard icon="AI" label={t("aiProviderStatusLabel")} value={system.aiProvider} animate={false} description={t("statAiDesc")} />
+          <StatCard icon="DB" label={t("databaseStatusLabel")} value={system.databaseStatus} animate={false} description={t("statDbDesc")} />
         </div>
       </section>
 
       <section>
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--muted)]">
+        <h2 className="mb-4 font-[family-name:var(--font-mono)] text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--muted)]">
           {t("lifecycleSectionTitle")}
         </h2>
+        <LifecyclePipeline steps={pipelineSteps} />
+      </section>
+
+      <section>
+        <h2 className="mb-4 font-[family-name:var(--font-mono)] text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--muted)]">
+          {t("quickActionsTitle")}
+        </h2>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <LifecycleCard
-            title={t("lifecycleCreate")}
-            description={t("lifecycleCreateDesc")}
-            href="/playground"
-            status={stats.totalPrompts > 0 ? "active" : "ready"}
-            statusLabel={stats.totalPrompts > 0 ? t("statusActive") : t("statusReady")}
-          />
-          <LifecycleCard
-            title={t("lifecycleTest")}
-            description={t("lifecycleTestDesc")}
-            href="/playground"
-            status={stats.totalRuns > 0 ? "active" : "ready"}
-            statusLabel={stats.totalRuns > 0 ? t("statusActive") : t("statusReady")}
-          />
-          <LifecycleCard
-            title={t("lifecycleOptimize")}
-            description={t("lifecycleOptimizeDesc")}
-            href="/optimizer"
-            status={data.recentVersions.length > 0 ? "active" : "ready"}
-            statusLabel={data.recentVersions.length > 0 ? t("statusActive") : t("statusReady")}
-          />
-          <LifecycleCard
-            title={t("lifecycleVersion")}
-            description={t("lifecycleVersionDesc")}
-            href="/optimizer"
-            status="planned"
-            statusLabel={t("statusPlanned")}
-          />
-          <LifecycleCard
-            title={t("lifecycleEvaluate")}
-            description={t("lifecycleEvaluateDesc")}
-            href="/dashboard"
-            status={stats.averageScore != null ? "ready" : "planned"}
-            statusLabel={stats.averageScore != null ? t("statusReady") : t("statusPlanned")}
-          />
-          <LifecycleCard
-            title={t("lifecycleWorkflow")}
-            description={t("lifecycleWorkflowDesc")}
-            href="/workflows"
-            status={stats.totalWorkflows > 0 ? "active" : "planned"}
-            statusLabel={stats.totalWorkflows > 0 ? t("statusActive") : t("statusPlanned")}
-          />
+          <QuickActionCard href="/playground" title={t("quickTestExecution")} description={t("quickTestExecutionDesc")} />
+          <QuickActionCard href="/optimizer" title={t("quickOptimize")} description={t("quickOptimizeDesc")} />
+          <QuickActionCard href="/any-idea" title={t("quickCaptureIdea")} description={t("quickCaptureIdeaDesc")} />
+          <QuickActionCard href="/library" title={t("quickLibrary")} description={t("quickLibraryDesc")} />
+          <QuickActionCard href="/workflows" title={t("quickWorkflow")} description={t("quickWorkflowDesc")} />
         </div>
       </section>
 
       <div className="grid gap-6 xl:grid-cols-3">
         <section className="xl:col-span-2">
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--muted)]">
+          <h2 className="mb-4 font-[family-name:var(--font-mono)] text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--muted)]">
             {t("recentActivityTitle")}
           </h2>
           {hasActivity ? (
@@ -182,62 +197,18 @@ export default function DashboardPage() {
 
         <div className="space-y-6">
           <section>
-            <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--muted)]">
+            <h2 className="mb-4 font-[family-name:var(--font-mono)] text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--muted)]">
               {t("categorySectionTitle")}
             </h2>
-            {data.categoryCounts.length === 0 ? (
-              <EmptyState
-                title={t("categoryEmptyTitle")}
-                description={t("categoryEmptyBody")}
-              />
-            ) : (
-              <ul className="space-y-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
-                {data.categoryCounts.map((c) => (
-                  <li key={c.category} className="flex items-center justify-between text-sm">
-                    <span className="text-[var(--muted)]">{c.category}</span>
-                    <span className="font-semibold">{c.count}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <CategoryDistribution
+              categories={data.categoryCounts}
+              emptyTitle={t("categoryEmptyTitle")}
+              emptyBody={t("categoryEmptyBody")}
+            />
           </section>
-
           <SystemHealthCard system={data.system} />
         </div>
       </div>
-
-      <section>
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--muted)]">
-          {t("quickActionsTitle")}
-        </h2>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <QuickActionCard
-            href="/playground"
-            title={t("quickTestExecution")}
-            description={t("quickTestExecutionDesc")}
-          />
-          <QuickActionCard
-            href="/optimizer"
-            title={t("quickOptimize")}
-            description={t("quickOptimizeDesc")}
-          />
-          <QuickActionCard
-            href="/any-idea"
-            title={t("quickCaptureIdea")}
-            description={t("quickCaptureIdeaDesc")}
-          />
-          <QuickActionCard
-            href="/library"
-            title={t("quickLibrary")}
-            description={t("quickLibraryDesc")}
-          />
-          <QuickActionCard
-            href="/workflows"
-            title={t("quickWorkflow")}
-            description={t("quickWorkflowDesc")}
-          />
-        </div>
-      </section>
     </div>
   );
 }

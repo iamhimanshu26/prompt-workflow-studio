@@ -43,6 +43,8 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     navAnyIdea: "Any Idea!",
 
     appTagline: "PromptOps platform for AI workflow teams",
+    appTaglineShort: "PromptOps platform",
+    sidebarStatusTitle: "System status",
     navSectionPrimary: "Workspace",
     navSectionMore: "More",
     pageDescDashboard: "PromptOps command center and system overview",
@@ -78,11 +80,21 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     lifecycleVersionDesc: "Track prompt versions and compare changes",
     lifecycleEvaluate: "Evaluate Quality",
     lifecycleEvaluateDesc: "Score outputs across quality dimensions",
+    lifecycleAutomate: "Workflow Automation",
+    lifecycleAutomateDesc: "Chain prompts into reusable AI workflows",
     lifecycleWorkflow: "Build Workflows",
     lifecycleWorkflowDesc: "Chain prompts into reusable AI workflows",
     statusActive: "Active",
     statusReady: "Ready",
+    statusPartial: "Partial",
     statusPlanned: "Planned",
+    statPromptsDesc: "Saved prompts in the PromptOps workspace",
+    statRunsDesc: "Total prompt executions recorded",
+    statScoreDesc: "Average evaluation score across runs",
+    statIdeasDesc: "Product ideas captured for future work",
+    statWorkflowsDesc: "Workflow definitions in the pipeline",
+    statAiDesc: "Active AI provider for prompt execution",
+    statDbDesc: "PostgreSQL connectivity via Neon",
     activityEmptyTitle: "No prompt activity yet",
     activityEmptyBody:
       "No prompt activity has been recorded yet. Start by running a prompt in the Playground or capturing a workflow idea.",
@@ -101,6 +113,33 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     databaseUnavailableTitle: "Database unavailable",
     databaseUnavailableBody:
       "Connect DATABASE_URL to your Neon PostgreSQL instance and redeploy.",
+
+    libraryPreviewBadge: "Phase 7 — Prompt Library",
+    libraryPreviewTitle: "Enterprise Prompt Library",
+    libraryPreviewSubtitle:
+      "Centralize reusable prompts, templates, and version history for your PromptOps team.",
+    libraryPreviewFeature1: "Search and filter prompts by category, tag, and owner",
+    libraryPreviewFeature2: "Browse version history and compare optimized variants",
+    libraryPreviewFeature3: "Import prompts into Playground or Optimizer in one click",
+    libraryPreviewCta: "Test Prompt Execution",
+    libraryPreviewSecondary: "Optimize a Prompt",
+
+    workflowsPreviewBadge: "Phase 8 — Workflow Builder",
+    workflowsPreviewTitle: "Workflow Automation Lab",
+    workflowsPreviewSubtitle:
+      "Design multi-step AI pipelines that chain prompts, evaluations, and model outputs into reusable workflows.",
+    workflowsPreviewFeature1: "Visual workflow canvas with connected prompt nodes",
+    workflowsPreviewFeature2: "Trigger workflows from dashboard or API endpoints",
+    workflowsPreviewFeature3: "Monitor step latency, token usage, and quality scores",
+    workflowsPreviewCta: "Capture Workflow Idea",
+    workflowsPreviewSecondary: "Open Command Center",
+    modulePreviewFooter:
+      "Module in active development — use Playground and Optimizer for prompt execution today.",
+
+    healthLoading: "Running diagnostics…",
+    healthOperational: "Operational",
+    healthDegraded: "Degraded",
+    healthOffline: "Offline",
 
     anyIdeaTitle: "Any Idea!",
     anyIdeaSubtitle:
@@ -263,6 +302,8 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     navAnyIdea: "Any Idea!",
 
     appTagline: "AIワークフローチーム向けPromptOpsプラットフォーム",
+    appTaglineShort: "PromptOpsプラットフォーム",
+    sidebarStatusTitle: "システム状態",
     navSectionPrimary: "ワークスペース",
     navSectionMore: "その他",
     pageDescDashboard: "PromptOpsコマンドセンター",
@@ -298,11 +339,21 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     lifecycleVersionDesc: "バージョン追跡と比較",
     lifecycleEvaluate: "品質評価",
     lifecycleEvaluateDesc: "出力品質のスコアリング",
+    lifecycleAutomate: "ワークフロー自動化",
+    lifecycleAutomateDesc: "再利用可能なAIワークフローへ連結",
     lifecycleWorkflow: "ワークフロー構築",
     lifecycleWorkflowDesc: "再利用可能なAIワークフロー",
     statusActive: "稼働中",
     statusReady: "準備完了",
+    statusPartial: "一部対応",
     statusPlanned: "予定",
+    statPromptsDesc: "ワークスペース内の保存プロンプト",
+    statRunsDesc: "記録されたプロンプト実行数",
+    statScoreDesc: "実行の平均評価スコア",
+    statIdeasDesc: "将来作業用にキャプチャしたアイデア",
+    statWorkflowsDesc: "パイプライン内のワークフロー定義",
+    statAiDesc: "プロンプト実行用のAIプロバイダ",
+    statDbDesc: "Neon経由のPostgreSQL接続",
     activityEmptyTitle: "アクティビティなし",
     activityEmptyBody:
       "まだ記録がありません。プレイグラウンドで実行するか、アイデアをキャプチャしてください。",
@@ -320,6 +371,33 @@ export const MESSAGES: Record<Lang, Record<string, string>> = {
     quickWorkflowDesc: "ワークフローを開く",
     databaseUnavailableTitle: "データベース利用不可",
     databaseUnavailableBody: "DATABASE_URL を Neon に設定して再デプロイしてください。",
+
+    libraryPreviewBadge: "フェーズ7 — プロンプトライブラリ",
+    libraryPreviewTitle: "エンタープライズ・プロンプトライブラリ",
+    libraryPreviewSubtitle:
+      "再利用可能なプロンプト、テンプレート、バージョン履歴を一元管理します。",
+    libraryPreviewFeature1: "カテゴリ・タグ・所有者で検索・フィルタ",
+    libraryPreviewFeature2: "バージョン履歴と最適化バリアントの比較",
+    libraryPreviewFeature3: "ワンクリックでプレイグラウンドまたは最適化へ",
+    libraryPreviewCta: "プロンプト実行テスト",
+    libraryPreviewSecondary: "プロンプトを最適化",
+
+    workflowsPreviewBadge: "フェーズ8 — ワークフロービルダー",
+    workflowsPreviewTitle: "ワークフロー自動化ラボ",
+    workflowsPreviewSubtitle:
+      "プロンプト、評価、モデル出力を連結するマルチステップAIパイプラインを設計します。",
+    workflowsPreviewFeature1: "接続されたプロンプトノードのビジュアルキャンバス",
+    workflowsPreviewFeature2: "ダッシュボードまたはAPIからワークフローを起動",
+    workflowsPreviewFeature3: "ステップのレイテンシ、トークン、品質スコアを監視",
+    workflowsPreviewCta: "ワークフローアイデアをキャプチャ",
+    workflowsPreviewSecondary: "コマンドセンターを開く",
+    modulePreviewFooter:
+      "開発中のモジュール — 本日はプレイグラウンドと最適化をご利用ください。",
+
+    healthLoading: "診断を実行中…",
+    healthOperational: "稼働中",
+    healthDegraded: "低下",
+    healthOffline: "オフライン",
 
     anyIdeaTitle: "Any Idea!",
     anyIdeaSubtitle:

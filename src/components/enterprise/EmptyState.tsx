@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "@/lib/utils";
+import GlowCard from "./GlowCard";
 
 export default function EmptyState({
   title,
@@ -11,14 +11,12 @@ export default function EmptyState({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "rounded-xl border border-dashed border-[var(--border)] bg-[var(--surface-muted)] px-6 py-10 text-center",
-        className,
-      )}
+    <GlowCard
+      glow={false}
+      className={`border-dashed px-6 py-10 text-center ${className ?? ""}`}
     >
       <p className="font-semibold text-[var(--foreground)]">{title}</p>
       <p className="mx-auto mt-2 max-w-lg text-sm text-[var(--muted)]">{description}</p>
-    </div>
+    </GlowCard>
   );
 }
