@@ -1,5 +1,6 @@
 import type { AiModelId, PromptCategory } from "@prisma/client";
 import { MockAiProvider } from "./mock";
+import { parseEvaluationJson } from "./evaluationParse";
 import type {
   AiProvider,
   CompletionRequest,
@@ -118,6 +119,31 @@ export class OpenAiProvider implements AiProvider {
   }
 
   async evaluate(input: EvaluationInput): Promise<EvaluationResult> {
-    return this.fallback.evaluate(input);
+    const start = Date.now();
+    try {
+      const system = [
+        "You are a PromptOps quality analyst.",
+        "Return ONLY valid JSON with these numeric fields (0-100):",
+        "clarity, specificity, structure, outputControl, reusability, reliability, hallucinationRisk, productionReadiness, totalScore",
+        "Also include: rating (Excellent|Strong|Good|Needs Improvement|Risky), summary (string),",
+        "strengths (string[]), weaknesses (string[]), recommendations (string[]), suggestedPrompt (string, optional).",
+        "Label scores as AI-assisted quality indicators, not mathematical truth.",
+      ].join(" ");
+
+      const user = JSON.stringify({
+        evaluationType: input.evaluationType ?? "ALIGNMENT",
+        prompt: input.prompt,
+        response: input.response ?? "",
+        expectedOutput: input.expectedOutput ?? "",
+        successCriteria: input.successCriteria ?? "",
+      });
+
+      const { text, latencyMs } = await this.chat(system, user);
+      const parsed = parseEvaluationJson(text);
+      if (!parsed) return this.fallback.evaluate(input);
+      return { ...parsed, latencyMs: Date.now() - start + latencyMs };
+    } catch {
+      return this.fallback.evaluate(input);
+    }
   }
 }

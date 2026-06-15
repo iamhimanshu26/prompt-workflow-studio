@@ -33,6 +33,21 @@ enum AiModelId {
   CLAUDE
 }
 
+enum EvaluationSourceType {
+  MANUAL
+  PROMPT_RUN
+  SAVED_PROMPT
+  PROMPT_VERSION
+}
+
+enum EvaluationModeType {
+  PROMPT_QUALITY
+  OUTPUT_QUALITY
+  ALIGNMENT
+  PRODUCTION_READINESS
+  RISK_REVIEW
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -119,23 +134,44 @@ model PromptRun {
 }
 
 model Evaluation {
-  id               String   @id @default(cuid())
-  userId           String
-  promptRunId      String
-  clarity          Int
-  structure        Int
-  accuracy         Int
-  usefulness       Int
-  hallucinationRisk Int
-  totalScore       Int
-  summary          String?  @db.Text
-  createdAt        DateTime @default(now())
+  id                  String               @id @default(cuid())
+  userId              String
+  promptRunId         String?
+  promptId            String?
+  promptVersionId     String?
+  sourceType          EvaluationSourceType @default(MANUAL)
+  evaluationType      EvaluationModeType   @default(ALIGNMENT)
+  promptText          String?              @db.Text
+  responseText        String?              @db.Text
+  expectedOutput      String?              @db.Text
+  successCriteria     String?              @db.Text
+  clarity             Int
+  specificity         Int                  @default(0)
+  structure           Int
+  outputControl       Int                  @default(0)
+  reusability         Int                  @default(0)
+  reliability         Int                  @default(0)
+  accuracy            Int
+  usefulness          Int
+  hallucinationRisk   Int
+  productionReadiness Int                  @default(0)
+  totalScore          Int
+  rating              String?
+  summary             String?              @db.Text
+  strengths           Json?
+  weaknesses          Json?
+  recommendations     Json?
+  suggestedPrompt     String?              @db.Text
+  provider            String?
+  latencyMs           Int?
+  createdAt           DateTime             @default(now())
 
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  promptRun PromptRun @relation(fields: [promptRunId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promptRun PromptRun? @relation(fields: [promptRunId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([promptRunId])
+  @@index([createdAt])
 }
 
 model Workflow {

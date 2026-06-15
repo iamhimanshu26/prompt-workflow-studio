@@ -1,4 +1,5 @@
 import type { AiModelId, PromptCategory } from "@prisma/client";
+import type { EvaluationModeType } from "@prisma/client";
 
 export type AiProviderName = "mock" | "openai" | "gemini";
 
@@ -36,17 +37,31 @@ export interface OptimizeResult {
 
 export interface EvaluationInput {
   prompt: string;
-  response: string;
+  response?: string;
+  expectedOutput?: string;
+  successCriteria?: string;
+  evaluationType?: EvaluationModeType;
 }
 
 export interface EvaluationResult {
   clarity: number;
+  specificity: number;
   structure: number;
+  outputControl: number;
+  reusability: number;
+  reliability: number;
+  hallucinationRisk: number;
+  productionReadiness: number;
   accuracy: number;
   usefulness: number;
-  hallucinationRisk: number;
   totalScore: number;
+  rating: string;
   summary: string;
+  strengths: string[];
+  weaknesses: string[];
+  recommendations: string[];
+  suggestedPrompt?: string;
+  latencyMs?: number;
 }
 
 export interface AiProvider {

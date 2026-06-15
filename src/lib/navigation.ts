@@ -10,6 +10,7 @@ export const PRIMARY_NAV: NavItem[] = [
   { href: "/playground", labelKey: "navPlayground", descriptionKey: "pageDescPlayground" },
   { href: "/optimizer", labelKey: "navOptimizer", descriptionKey: "pageDescOptimizer" },
   { href: "/versions", labelKey: "navVersions", descriptionKey: "pageDescVersions" },
+  { href: "/evaluate", labelKey: "navEvaluate", descriptionKey: "pageDescEvaluate" },
   { href: "/library", labelKey: "navLibrary", descriptionKey: "pageDescLibrary" },
   { href: "/workflows", labelKey: "navWorkflows", descriptionKey: "pageDescWorkflows" },
   { href: "/any-idea", labelKey: "navAnyIdea", descriptionKey: "pageDescAnyIdea", highlight: true },

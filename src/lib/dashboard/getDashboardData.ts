@@ -35,6 +35,7 @@ export async function getDashboardData(): Promise<DashboardPayload> {
       stats: {
         totalPrompts: 0,
         totalRuns: 0,
+        totalEvaluations: 0,
         averageScore: null,
         totalIdeas: 0,
         totalWorkflows: 0,
@@ -58,6 +59,7 @@ export async function getDashboardData(): Promise<DashboardPayload> {
   const [
     totalPrompts,
     totalRuns,
+    totalEvaluations,
     totalIdeas,
     totalWorkflows,
     avgAgg,
@@ -70,6 +72,7 @@ export async function getDashboardData(): Promise<DashboardPayload> {
   ] = await Promise.all([
     prisma.prompt.count({ where: { userId } }),
     prisma.promptRun.count({ where: { userId } }),
+    prisma.evaluation.count({ where: { userId } }),
     prisma.idea.count({ where: { userId } }),
     prisma.workflow.count({ where: { userId } }),
     prisma.evaluation.aggregate({
@@ -128,6 +131,7 @@ export async function getDashboardData(): Promise<DashboardPayload> {
     stats: {
       totalPrompts,
       totalRuns,
+      totalEvaluations,
       averageScore:
         avgAgg._avg.totalScore == null ? null : Math.round(avgAgg._avg.totalScore),
       totalIdeas,

@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { PromptCategory } from "@prisma/client";
 import GlowCard from "@/components/enterprise/GlowCard";
 import CopyButton from "@/components/playground/CopyButton";
+import { buildEvaluateUrl } from "@/lib/evaluation/handoff";
 import { useLang } from "@/lib/i18n/LangProvider";
 import type { OptimizeApiData } from "@/lib/optimizer/types";
 import OptimizerSkeleton from "./OptimizerSkeleton";
@@ -169,6 +170,16 @@ export default function OptimizedOutputPanel({
               {t("optimizerSaveNew")}
             </button>
           )}
+          <Link
+            href={buildEvaluateUrl({
+              mode: "manual",
+              prompt: optimizedText,
+              evaluationType: "PROMPT_QUALITY",
+            })}
+            className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-200 hover:bg-emerald-500/20"
+          >
+            {t("optEvaluatePrompt")} →
+          </Link>
           <Link
             href={playgroundHref}
             className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-4 py-2 text-sm font-semibold text-indigo-200 hover:bg-indigo-500/20"

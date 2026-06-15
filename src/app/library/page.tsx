@@ -45,6 +45,22 @@ export default function LibraryPage() {
           {t("libraryVersionCta")} →
         </Link>
       </GlowCard>
+
+      <GlowCard className="flex flex-wrap items-center justify-between gap-4 p-5">
+        <div>
+          <p className="font-[family-name:var(--font-mono)] text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+            {t("libraryEvalCardBadge")}
+          </p>
+          <p className="mt-1 font-semibold text-[var(--foreground)]">{t("libraryEvalCardTitle")}</p>
+          <p className="mt-1 text-sm text-[var(--muted)]">{t("libraryEvalCardBody")}</p>
+        </div>
+        <Link
+          href="/evaluate"
+          className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-200"
+        >
+          {t("libraryEvalCta")} →
+        </Link>
+      </GlowCard>
     </div>
   );
 }

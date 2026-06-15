@@ -4,6 +4,7 @@ import Link from "next/link";
 import React from "react";
 import GlowCard from "@/components/enterprise/GlowCard";
 import { useLang } from "@/lib/i18n/LangProvider";
+import { buildEvaluateUrl } from "@/lib/evaluation/handoff";
 import CopyButton from "./CopyButton";
 import ExecutionSummary from "./ExecutionSummary";
 import PlaygroundSkeleton from "./PlaygroundSkeleton";
@@ -18,6 +19,7 @@ export default function OutputPanel({
   onClear,
   onSave,
   saving,
+  runId,
 }: {
   output: string | null;
   metadata: RunMetadata | null;
@@ -27,6 +29,7 @@ export default function OutputPanel({
   onClear: () => void;
   onSave: () => void;
   saving: boolean;
+  runId?: string | null;
 }) {
   const { t } = useLang();
 
@@ -49,6 +52,17 @@ export default function OutputPanel({
               >
                 {saving ? t("playgroundSaving") : t("playgroundSave")}
               </button>
+              <Link
+                href={buildEvaluateUrl({
+                  mode: "prompt_run",
+                  prompt: resolvedPrompt,
+                  output: output,
+                  runId: runId ?? undefined,
+                })}
+                className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/20"
+              >
+                {t("pgEvaluateOutput")}
+              </Link>
               <Link
                 href={`/optimizer?prompt=${encodeURIComponent(resolvedPrompt)}`}
                 className="rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-3 py-1.5 text-xs font-semibold text-indigo-200 hover:bg-indigo-500/20"

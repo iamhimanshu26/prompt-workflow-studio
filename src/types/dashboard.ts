@@ -3,6 +3,7 @@ import type { AiModelId, PromptCategory } from "@prisma/client";
 export type DashboardStats = {
   totalPrompts: number;
   totalRuns: number;
+  totalEvaluations: number;
   averageScore: number | null;
   totalIdeas: number;
   totalWorkflows: number;

@@ -1,4 +1,6 @@
 import type { AiModelId } from "@prisma/client";
+import { normalizeEvaluationResult } from "./evaluationParse";
+import { scoreToRating } from "@/lib/evaluation/rating";
 import type {
   AiProvider,
   CompletionRequest,
@@ -157,24 +159,140 @@ export class MockAiProvider implements AiProvider {
   }
 
   async evaluate(input: EvaluationInput): Promise<EvaluationResult> {
-    const len = input.response.length;
-    const clarity = Math.min(95, 60 + Math.floor(len / 40));
-    const structure = Math.min(92, 55 + (input.response.includes("\n") ? 25 : 10));
-    const accuracy = 70 + (hashSeed(input.prompt) % 20);
-    const usefulness = Math.min(90, 50 + Math.floor(len / 50));
-    const hallucinationRisk = Math.max(5, 35 - (hashSeed(input.response) % 25));
-    const totalScore = Math.round(
-      (clarity + structure + accuracy + usefulness + (100 - hallucinationRisk)) / 5,
+    const prompt = input.prompt.trim();
+    const response = (input.response ?? "").trim();
+    const seed = hashSeed(prompt + response);
+    const hasOutput = response.length > 0;
+    const evalType = input.evaluationType ?? "ALIGNMENT";
+
+    const clarity = Math.min(95, 58 + Math.floor(prompt.length / 30) + (seed % 12));
+    const specificity = Math.min(
+      92,
+      50 +
+        (prompt.match(/\b(must|should|format|constraint|step)\b/gi)?.length ?? 0) * 6 +
+        (seed % 10),
+    );
+    const structure = Math.min(
+      94,
+      52 +
+        (prompt.includes("\n") ? 18 : 6) +
+        (response.includes("\n") && hasOutput ? 12 : 0) +
+        (seed % 8),
+    );
+    const outputControl = Math.min(
+      90,
+      48 +
+        (prompt.match(/\b(json|format|tone|length|output)\b/gi)?.length ?? 0) * 7 +
+        (seed % 9),
+    );
+    const reusability = Math.min(88, 55 + (prompt.includes("{") ? 10 : 0) + (seed % 11));
+    const reliability = hasOutput
+      ? Math.min(90, 60 + Math.floor(response.length / 60) + (seed % 10))
+      : Math.min(75, 45 + (seed % 15));
+    const hallucinationRisk = hasOutput
+      ? Math.max(8, 42 - (seed % 22) - (response.match(/\b(maybe|possibly|might)\b/gi)?.length ?? 0) * 4)
+      : Math.max(10, 28 + (seed % 18));
+    const productionReadiness = Math.min(
+      93,
+      Math.round(
+        (clarity + specificity + structure + outputControl + reusability + reliability +
+          (100 - hallucinationRisk)) /
+          7,
+      ),
     );
 
-    return {
+    let totalScore = Math.round(
+      (clarity +
+        specificity +
+        structure +
+        outputControl +
+        reusability +
+        reliability +
+        (100 - hallucinationRisk) +
+        productionReadiness) /
+        8,
+    );
+
+    if (evalType === "PROMPT_QUALITY") {
+      totalScore = Math.round(
+        (clarity + specificity + structure + outputControl + reusability + productionReadiness) / 6,
+      );
+    } else if (evalType === "OUTPUT_QUALITY" && hasOutput) {
+      totalScore = Math.round(
+        (clarity + structure + reliability + (100 - hallucinationRisk) + productionReadiness) / 5,
+      );
+    } else if (evalType === "RISK_REVIEW") {
+      totalScore = Math.max(0, 100 - hallucinationRisk - Math.max(0, 40 - reliability));
+    }
+
+    const rating = scoreToRating(totalScore);
+    const strengths: string[] = [];
+    const weaknesses: string[] = [];
+    const recommendations: string[] = [];
+
+    if (clarity >= 75) strengths.push("Clear instructions and readable phrasing");
+    else weaknesses.push("Clarity could be improved with simpler, direct language");
+
+    if (specificity >= 70) strengths.push("Specific constraints and context are present");
+    else recommendations.push("Add explicit constraints, audience, and success criteria");
+
+    if (structure >= 72) strengths.push("Logical structure supports predictable execution");
+    else recommendations.push("Organize the prompt into sections (role, task, constraints, output)");
+
+    if (outputControl >= 68) strengths.push("Output format and tone expectations are defined");
+    else recommendations.push("Specify output format, length limits, and tone explicitly");
+
+    if (reusability >= 65) strengths.push("Prompt appears reusable across similar tasks");
+    else recommendations.push("Introduce variables/placeholders for reusable prompt patterns");
+
+    if (hasOutput && reliability >= 70) strengths.push("Output alignment looks dependable for the task");
+    else if (hasOutput) weaknesses.push("Output may drift from prompt intent or lack grounding");
+
+    if (hallucinationRisk <= 25) strengths.push("Low hallucination risk indicators in the content");
+    else weaknesses.push("Potential unsupported or vague claims detected");
+
+    if (productionReadiness >= 75) strengths.push("Suitable for production workflow usage with minor polish");
+    else recommendations.push("Run through Optimizer before production deployment");
+
+    const suggestedPrompt =
+      totalScore < 80
+        ? [
+            "You are an expert assistant.",
+            "",
+            "Task:",
+            prompt.slice(0, 500),
+            "",
+            "Constraints:",
+            "- Be specific and grounded in provided context",
+            "- Follow the requested output format exactly",
+            input.successCriteria?.trim()
+              ? `- Success criteria: ${input.successCriteria.trim()}`
+              : "- Avoid unsupported claims",
+          ]
+            .filter(Boolean)
+            .join("\n")
+        : undefined;
+
+    return normalizeEvaluationResult({
       clarity,
+      specificity,
       structure,
-      accuracy,
-      usefulness,
+      outputControl,
+      reusability,
+      reliability,
       hallucinationRisk,
+      productionReadiness,
+      accuracy: reliability,
+      usefulness: reusability,
       totalScore,
-      summary: "Demo evaluation — heuristic scores for UI testing.",
-    };
+      rating,
+      summary:
+        "AI-assisted quality indicators (demo mode) — heuristic scores for PromptOps review workflows.",
+      strengths: strengths.slice(0, 4),
+      weaknesses: weaknesses.slice(0, 4),
+      recommendations: recommendations.slice(0, 4),
+      suggestedPrompt,
+      latencyMs: mockLatency(prompt + response),
+    });
   }
 }

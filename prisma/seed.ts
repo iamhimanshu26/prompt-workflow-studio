@@ -89,13 +89,28 @@ async function main() {
     data: {
       userId: user.id,
       promptRunId: run1.id,
+      sourceType: "PROMPT_RUN",
+      evaluationType: "ALIGNMENT",
+      promptText: resumePrompt.body,
+      responseText:
+        "[Mock] Improved bullets with metrics placeholders for your experience section.",
       clarity: 88,
+      specificity: 84,
       structure: 85,
+      outputControl: 82,
+      reusability: 86,
+      reliability: 82,
       accuracy: 82,
       usefulness: 90,
       hallucinationRisk: 12,
+      productionReadiness: 87,
       totalScore: 87,
+      rating: "Strong",
       summary: "Strong structure; verify metrics against source resume.",
+      strengths: ["Clear task framing", "Structured output guidance"],
+      weaknesses: ["Metrics need source verification"],
+      recommendations: ["Add explicit source document constraints"],
+      provider: "mock",
     },
   });
 

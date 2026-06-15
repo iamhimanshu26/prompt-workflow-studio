@@ -55,6 +55,7 @@ function PlaygroundPageInner() {
   const [metadata, setMetadata] = useState<RunMetadata | null>(null);
   const [runError, setRunError] = useState<string | null>(null);
   const [lastPromptId, setLastPromptId] = useState<string | null>(null);
+  const [lastRunId, setLastRunId] = useState<string | null>(null);
   const [recentRuns, setRecentRuns] = useState<RecentRunRow[]>([]);
   const [provider, setProvider] = useState<ProviderUiState | null>(null);
   const [runsLoading, setRunsLoading] = useState(true);
@@ -171,6 +172,7 @@ function PlaygroundPageInner() {
       const text = data.output ?? data.responseText ?? "";
       setOutput(text);
       if (data.metadata) setMetadata(data.metadata);
+      if (data.runId) setLastRunId(data.runId);
       showToast(t("playgroundRunSuccess"), "success");
       loadRecent();
     } catch (e) {
@@ -288,6 +290,7 @@ function PlaygroundPageInner() {
           onClear={handleClearOutput}
           onSave={handleSave}
           saving={saving}
+          runId={lastRunId}
         />
       </div>
 

@@ -106,9 +106,10 @@ export default function DashboardPage() {
       key: "evaluate",
       title: t("lifecycleEvaluate"),
       description: t("lifecycleEvaluateDesc"),
-      href: "/dashboard",
-      status: stats.averageScore != null ? "partial" : "planned",
-      statusLabel: stats.averageScore != null ? t("statusPartial") : t("statusPlanned"),
+      href: "/evaluate",
+      status: stats.totalEvaluations > 0 ? "active" : stats.averageScore != null ? "partial" : "partial",
+      statusLabel:
+        stats.totalEvaluations > 0 ? t("statusActive") : t("statusReady"),
     },
     {
       key: "automate",
@@ -170,6 +171,7 @@ export default function DashboardPage() {
           <QuickActionCard href="/playground" title={t("quickTestExecution")} description={t("quickTestExecutionDesc")} />
           <QuickActionCard href="/optimizer" title={t("quickOptimize")} description={t("quickOptimizeDesc")} />
           <QuickActionCard href="/any-idea" title={t("quickCaptureIdea")} description={t("quickCaptureIdeaDesc")} />
+          <QuickActionCard href="/evaluate" title={t("quickEvaluate")} description={t("quickEvaluateDesc")} />
           <QuickActionCard href="/library" title={t("quickLibrary")} description={t("quickLibraryDesc")} />
           <QuickActionCard href="/workflows" title={t("quickWorkflow")} description={t("quickWorkflowDesc")} />
         </div>

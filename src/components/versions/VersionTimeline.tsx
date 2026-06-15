@@ -6,6 +6,7 @@ import GlowCard from "@/components/enterprise/GlowCard";
 import StatusBadge from "@/components/enterprise/StatusBadge";
 import CopyButton from "@/components/playground/CopyButton";
 import { useLang } from "@/lib/i18n/LangProvider";
+import { buildEvaluateUrl } from "@/lib/evaluation/handoff";
 import { buildOptimizerUrl, buildPlaygroundUrl } from "@/lib/versions/handoff";
 import { sourceLabelKey } from "@/lib/versions/source";
 import type { PromptDetail, VersionRow } from "@/lib/versions/types";
@@ -154,6 +155,18 @@ export default function VersionTimeline({
                     {t("verDuplicate")}
                   </button>
                   <CopyButton text={v.body} />
+                  <Link
+                    href={buildEvaluateUrl({
+                      mode: "prompt_version",
+                      prompt: v.body,
+                      promptId: prompt.id,
+                      versionId: v.id,
+                      evaluationType: "PROMPT_QUALITY",
+                    })}
+                    className="rounded-lg border border-[var(--border)] px-2 py-1 text-[10px] font-semibold text-emerald-400"
+                  >
+                    {t("verEvaluate")}
+                  </Link>
                   <Link
                     href={buildPlaygroundUrl(v.body, category, prompt.title)}
                     className="rounded-lg border border-[var(--border)] px-2 py-1 text-[10px] font-semibold text-cyan-400"
