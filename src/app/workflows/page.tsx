@@ -9,19 +9,29 @@ export default function WorkflowsPage() {
 
   return (
     <ModulePreview
-      badge={t("workflowsPreviewBadge")}
-      title={t("workflowsPreviewTitle")}
-      subtitle={t("workflowsPreviewSubtitle")}
+      title={t("workflowsPageTitle")}
+      subtitle={t("workflowsPageSubtitle")}
+      statusBadge={t("workflowsStatusBadge")}
       features={[
-        t("workflowsPreviewFeature1"),
-        t("workflowsPreviewFeature2"),
-        t("workflowsPreviewFeature3"),
+        { icon: "⬡", label: t("workflowsFeatureChains") },
+        { icon: "→", label: t("workflowsFeaturePipeline") },
+        { icon: "✦", label: t("workflowsFeatureGates") },
+        { icon: "▣", label: t("workflowsFeatureTemplates") },
+        { icon: "◇", label: t("workflowsFeatureCanvas") },
+        { icon: "▶", label: t("workflowsFeatureLogs") },
       ]}
-      primaryCta={t("workflowsPreviewCta")}
-      primaryHref="/any-idea"
-      secondaryCta={t("workflowsPreviewSecondary")}
-      secondaryHref="/dashboard"
-      footerNote={t("modulePreviewFooter")}
+      pipeline={[
+        t("workflowsPipeInput"),
+        t("workflowsPipePrompt"),
+        t("workflowsPipeOutput"),
+        t("workflowsPipeEval"),
+        t("workflowsPipeSaved"),
+      ]}
+      primaryCta={t("workflowsCtaPlayground")}
+      primaryHref="/playground"
+      secondaryCta={t("workflowsCtaIdea")}
+      secondaryHref="/any-idea"
+      footerNote={t("workflowsPreviewFooter")}
     />
   );
 }

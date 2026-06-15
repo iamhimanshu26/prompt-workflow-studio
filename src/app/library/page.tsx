@@ -9,19 +9,22 @@ export default function LibraryPage() {
 
   return (
     <ModulePreview
-      badge={t("libraryPreviewBadge")}
-      title={t("libraryPreviewTitle")}
-      subtitle={t("libraryPreviewSubtitle")}
+      title={t("libraryPageTitle")}
+      subtitle={t("libraryPageSubtitle")}
+      statusBadge={t("libraryStatusBadge")}
       features={[
-        t("libraryPreviewFeature1"),
-        t("libraryPreviewFeature2"),
-        t("libraryPreviewFeature3"),
+        { icon: "◆", label: t("libraryFeatureSaved") },
+        { icon: "▣", label: t("libraryFeatureTemplates") },
+        { icon: "◎", label: t("libraryFeatureFilters") },
+        { icon: "★", label: t("libraryFeatureFavorites") },
+        { icon: "⬡", label: t("libraryFeatureVersions") },
+        { icon: "▶", label: t("libraryFeatureMetrics") },
       ]}
-      primaryCta={t("libraryPreviewCta")}
+      primaryCta={t("libraryCtaPlayground")}
       primaryHref="/playground"
-      secondaryCta={t("libraryPreviewSecondary")}
+      secondaryCta={t("libraryCtaOptimizer")}
       secondaryHref="/optimizer"
-      footerNote={t("modulePreviewFooter")}
+      footerNote={t("libraryPreviewFooter")}
     />
   );
 }

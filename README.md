@@ -6,23 +6,30 @@ Built as a portfolio project to demonstrate modern React, API design, PostgreSQL
 
 ## Features (current & planned)
 
-**Available now (foundation)**
+**Available now**
 
-- PostgreSQL data model for prompts, versions, runs, evaluations, and workflows
-- Mock AI provider (swap to OpenAI or Gemini via environment variables)
-- Health check API and seed data for local development
-- Docker Compose setup for local Postgres
+- Enterprise AppShell with sidebar navigation and PromptOps visual identity
+- PromptOps Command Center dashboard (KPIs, lifecycle pipeline, activity, system health)
+- Prompt Playground — run prompts, save results, track execution history
+- Prompt Optimizer — side-by-side optimization and version save
+- Any Idea — capture and refine product/workflow ideas (PostgreSQL-backed)
+- API Health — database, AI provider, and environment diagnostics
+- PostgreSQL data model (Prisma) for prompts, versions, runs, evaluations, workflows, and ideas
+- Mock AI provider with OpenAI adapter readiness via environment variables
+- Docker Compose for local Postgres; Neon PostgreSQL for production
 
-**Coming next**
+**Preview / partial**
 
-- Dashboard with stats and recent activity
-- Prompt playground with category templates (resume, interview, email, coding, and more)
-- Side-by-side prompt optimizer
-- Version history and comparison
-- Output evaluation (clarity, structure, accuracy, usefulness, hallucination risk)
-- Multi-model comparison (GPT, Gemini, Claude)
-- Prompt library with search and favorites
-- Workflow builder (e.g. job description → interview prep → follow-up email)
+- Prompt Library — enterprise preview page (full CRUD/search planned)
+- Workflow Builder — readiness preview (drag-and-drop canvas planned)
+- Version history and side-by-side compare (optimizer save exists; full UI planned)
+- Output evaluation center (schema ready; UI planned)
+- Multi-model comparison (planned)
+
+**Not yet implemented**
+
+- Full authentication and team management
+- Billing and role-based access
 
 ## Tech stack
 
@@ -37,7 +44,7 @@ Built as a portfolio project to demonstrate modern React, API design, PostgreSQL
 
 ## Screenshots
 
-_Add screenshots after Phase 1 UI is complete._
+_Screenshots to be added after final Phase 1 polish._
 
 ## Getting started
 

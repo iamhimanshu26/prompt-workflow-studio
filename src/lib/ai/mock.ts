@@ -91,7 +91,8 @@ export class MockAiProvider implements AiProvider {
     const latencyMs = mockLatency(request.prompt);
     const { input, output } = mockTokens(request.prompt);
     const category = request.category ?? "GENERAL";
-    const text = buildMockCompletion(request.prompt, category);
+    const label = MODEL_LABELS[modelId];
+    const text = `> **Model:** ${label}\n\n${buildMockCompletion(request.prompt, category)}`;
 
     return {
       text,
