@@ -38,8 +38,12 @@ export async function getHealthStatus() {
   } catch (e) {
     const raw = e instanceof Error ? e.message : "AI check failed";
     const parsed = parseOpenAiError(raw);
-    aiWarning = parsed.userMessage;
-    aiErrorKind = parsed.kind;
+    // Do not surface quota/billing warnings from proactive health probes — only
+    // show those after a real prompt execution fails in the app.
+    if (parsed.kind !== "quota") {
+      aiWarning = parsed.userMessage;
+      aiErrorKind = parsed.kind;
+    }
     aiSample = {
       provider: ai.name,
       sampleLatencyMs: null,

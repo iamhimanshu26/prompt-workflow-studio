@@ -14,6 +14,7 @@ import QualityIndicatorsPanel from "@/components/optimizer/QualityIndicators";
 import SavedPromptsPanel from "@/components/optimizer/SavedPromptsPanel";
 import { useLang } from "@/lib/i18n/LangProvider";
 import { useToast } from "@/components/Toast";
+import { clearQuotaExceeded, markQuotaExceeded } from "@/lib/ai/quotaSession";
 import type {
   OptimizationGoal,
   OptimizeApiData,
@@ -188,10 +189,13 @@ function OptimizerPageInner() {
       if (!res.ok || json.status !== "ok") {
         const msg =
           typeof json.message === "string" ? json.message : t("optimizerRunError");
+        if (json.errorKind === "quota") markQuotaExceeded();
         setOptimizeError(msg);
         showToast(msg, "error");
         return;
       }
+
+      clearQuotaExceeded();
       const data = json.data as OptimizeApiData;
       setOptimizeData(data);
       setOptimizedText(data.optimizedPrompt);

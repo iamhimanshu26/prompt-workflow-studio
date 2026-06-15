@@ -10,6 +10,7 @@ import RecentRunsPanel, { type RecentRunRow } from "@/components/playground/Rece
 import PlaygroundSkeleton from "@/components/playground/PlaygroundSkeleton";
 import { useLang } from "@/lib/i18n/LangProvider";
 import { useToast } from "@/components/Toast";
+import { clearQuotaExceeded, markQuotaExceeded } from "@/lib/ai/quotaSession";
 import {
   detectVariables,
   replaceVariables,
@@ -158,10 +159,13 @@ function PlaygroundPageInner() {
           typeof json.message === "string"
             ? json.message
             : t("playgroundRunError");
+        if (json.errorKind === "quota") markQuotaExceeded();
         setRunError(msg);
         showToast(msg, "error");
         return;
       }
+
+      clearQuotaExceeded();
 
       const data = json.data as RunApiData;
       const text = data.output ?? data.responseText ?? "";

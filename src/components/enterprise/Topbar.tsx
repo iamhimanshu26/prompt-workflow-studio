@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import LangToggle from "@/components/LangToggle";
-import { findNavItem, PRIMARY_NAV, matchNavPath } from "@/lib/navigation";
+import { PRIMARY_NAV, matchNavPath } from "@/lib/navigation";
 import { useLang } from "@/lib/i18n/LangProvider";
 import StatusBadge from "./StatusBadge";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,6 @@ export default function Topbar({
 }) {
   const pathname = usePathname();
   const { t } = useLang();
-  const current = findNavItem(pathname);
   const [system, setSystem] = useState({ db: "—", ai: "—" });
 
   useEffect(() => {
@@ -33,9 +32,6 @@ export default function Topbar({
       .catch(() => {});
   }, []);
 
-  const pageTitle = current ? t(current.labelKey) : t("appTitle");
-  const pageDesc = current ? t(current.descriptionKey) : t("appTagline");
-
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-xl">
       <div className="flex h-14 items-center gap-3 px-4 lg:px-6">
@@ -49,13 +45,7 @@ export default function Topbar({
           ☰
         </button>
 
-        <div className="hidden min-w-0 flex-1 lg:block">
-          <p className="font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-[0.2em] text-indigo-400">
-            PromptOps Workspace
-          </p>
-          <h1 className="truncate text-lg font-bold text-[var(--foreground)]">{pageTitle}</h1>
-          <p className="truncate text-xs text-[var(--muted)]">{pageDesc}</p>
-        </div>
+        <div className="hidden min-w-0 flex-1 lg:block" aria-hidden />
 
         <div className="ml-auto flex items-center gap-2">
           <StatusBadge
